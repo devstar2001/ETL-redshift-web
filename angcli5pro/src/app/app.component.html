@@ -1,0 +1,284 @@
+
+  <header id="header" [ngClass]="cloudBackgroundShow? 'alt':'fix'">
+    <!--<h1 >-->
+      <a id="logo" href="#" style="left: 0px">
+        <img  src="../assets/logo-199-47.png" style="display: inline; height: 50px;">
+      </a>
+    <!--</h1>-->
+    <nav id="nav">
+
+      <ul>
+
+        <li class="current"><a [routerLink]="['']">Welcome
+          <span style="color: #ff8c00">{{loggedInData.first_name}}</span>
+        </a></li>
+        <li class="submenu">
+          <a href="#">Menu</a>
+          <ul>
+            <li><a routerLink="/signup">Sign Up</a></li>
+            <li><a routerLink="/signin">Sign In</a></li>
+            <li><a routerLink="/sources">Source</a></li>
+            <li><a routerLink="/targets">Target</a></li>
+            <li><a routerLink="/loaders">Loader</a></li>
+            <li><a routerLink="/sources/scrape">Scraper</a></li>
+            <li><a routerLink="/redshift">Redshift</a></li>
+
+          </ul>
+        </li>
+        <li *ngIf="!isLoggedIn"><a (click)="signup()" class="button special">Sign Up</a></li>
+        <li *ngIf="isLoggedIn"><a (click)="logout()" class="button special">Sign Out</a></li>
+      </ul>
+    </nav>
+
+  </header>
+
+  <router-outlet>
+
+  </router-outlet>
+
+  <article *ngIf="indexContentShowF" style="background-color: #fff">
+
+    <!-- Section Try it free -->
+    <section class="try" >
+      <div class="container">
+        <div class="row text-center polygon">
+          <div class="col-md-12">
+
+            <div class="text-center">
+              <img class="img-responsive barrel"
+                   style="margin: 0 auto; margin-top: 20px;max-width: 70%"
+                   src="../assets/bg-2.png">
+            </div>
+            <h1 class="blue">HOW IT WORKS</h1>
+            <hr>
+            <h1 class="black">3 EASY STEPS TO LOAD DATA INTO</h1>
+          </div>
+        </div>
+        <div class="row polygons text-center">
+          <div class="col-md-4">
+            <img src="../assets/poly1.png">
+            <h3>
+              Upload Files or Connect<br> S3 Buckets
+            </h3>
+            <p>
+              Lorem ipsum dolor sit amet, consectetur <br> adipiscing elit,
+              sed do eiusmod tempor <br> incididunt ut labore et dolor.
+            </p>
+          </div>
+          <div class="col-md-4">
+            <img src="../assets/poly2.png">
+            <h3>
+              Visually Apply Data<br> Transformations
+            </h3>
+            <p>
+              Lorem ipsum dolor sit amet, consectetur <br> adipiscing elit,
+              sed do eiusmod tempor incididunt <br> ut labore et dolor ed
+              do eiusmod
+            </p>
+          </div>
+          <div class="col-md-4">
+            <img src="../assets/poly3.png">
+            <h3>Upload Files or Connect S3 Buckets</h3>
+            <p>
+              Lorem ipsum dolor sit amet, consectetur <br> adipiscing elit,
+              sed do eiusmod tempor <br> incididunt ut labore et dolor.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- Start Section Prepare -->
+    <section class="prepare" >
+      <div class="container">
+        <div class="text-center">
+          <h2>Prepare Data for lorem load</h2>
+          <p>You can now load data into Redshif without defining a schema
+            first!</p>
+        </div>
+        <div class="row text-center">
+          <div class="col-md-12 screen-div">
+            <img class="screen screen1 img-responsive"
+                 src="../assets/screens.png">
+          </div>
+          <div class="col-md-10 col-md-offset-1 white-space"></div>
+        </div>
+      </div>
+    </section>
+    <!-- Section Features -->
+    <section class="features" >
+      <div class="container">
+        <div class="text-center features-title">
+          <h2>Prepare Data for lorem load</h2>
+          <p>You can now load data into Redshif without defining a schema
+            first!</p>
+        </div>
+      </div>
+      <div class="features-wrapper">
+        <div class="container">
+          <div class="row">
+            <div class="col-md-4 wow fadeInLeft" data-wow-duration="1s">
+              <!-- left feature item 01 -->
+              <div class="left-feature-item">
+                <!-- Icon -->
+                <div class="left-feature-item-icon">
+                  <i class="fa fa-desktop"></i>
+                </div>
+                <!-- feature item title & description -->
+                <h3>Type Resolution</h3>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+                  sed do eiusmod tempor incididunt ut labore et dolor ed do
+                  eiusmod</p>
+              </div>
+              <!-- left feature item 02 -->
+              <div class="left-feature-item">
+                <!-- Icon -->
+                <div class="left-feature-item-icon">
+                  <i class="fa fa-mobile"></i>
+                </div>
+                <!-- feature item title & description -->
+                <h3>Collaboration Tools</h3>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+                  sed do eiusmod tempor incididunt ut labore et dolor ed do
+                  eiusmod</p>
+              </div>
+              <!-- left feature item 03 -->
+              <div class="left-feature-item">
+                <!-- Icon -->
+                <div class="left-feature-item-icon">
+                  <i class="fa fa-eye"></i>
+                </div>
+                <!-- feature item title & description -->
+                <h3>Essential Transforms</h3>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+                  sed do eiusmod tempor incididunt ut labore et dolor ed do
+                  eiusmod</p>
+              </div>
+              <!-- left feature item 03 -->
+              <div class="left-feature-item">
+                <!-- Icon -->
+                <div class="left-feature-item-icon">
+                  <i class="fa fa-eye"></i>
+                </div>
+                <!-- feature item title & description -->
+                <h3>SQL IDE</h3>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+                  sed do eiusmod tempor incididunt ut labore et dolor ed do
+                  eiusmod</p>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="feature-img">
+                <img src="../assets/features_03.png"
+                     style="height: 377px !important;" class="img-responsive">
+              </div>
+            </div>
+            <div class="col-md-4 wow fadeInRight" data-wow-duration="1s">
+              <!-- right feature item 01 -->
+              <div class="right-feature-item">
+                <!-- Icon -->
+                <div class="right-feature-item-icon">
+                  <i class="fa fa-certificate"></i>
+                </div>
+                <!-- feature item title and description -->
+                <h3>Schedule your Loads</h3>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+                  sed do eiusmod tempor incididunt ut labore et dolor ed do
+                  eiusmod</p>
+              </div>
+              <!-- right feature item 02 -->
+              <div class="right-feature-item">
+                <!-- Icon -->
+                <div class="right-feature-item-icon">
+                  <i class="fa fa-rss"></i>
+                </div>
+                <!-- feature item title and description -->
+                <h3>Zip Files and More</h3>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+                  sed do eiusmod tempor incididunt ut labore et dolor ed do
+                  eiusmod</p>
+              </div>
+              <!-- right feature item 03 -->
+              <div class="right-feature-item">
+                <!-- Icon -->
+                <div class="right-feature-item-icon">
+                  <i class="fa fa-database"></i>
+                </div>
+                <!-- feature item title and description -->
+                <h3>Load Stats</h3>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+                  sed do eiusmod tempor incididunt ut labore et dolor ed do
+                  eiusmod</p>
+              </div>
+              <!-- right feature item 03 -->
+              <div class="right-feature-item">
+                <!-- Icon -->
+                <div class="right-feature-item-icon">
+                  <i class="fa fa-database"></i>
+                </div>
+                <!-- feature item title and description -->
+                <h3>SQL IDE</h3>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+                  sed do eiusmod tempor incididunt ut labore et dolor ed do
+                  eiusmod</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- Open news letter section -->
+    <section class="news" >
+      <div class="container text-center">
+        <div class="row">
+          <div class="col-md-12 inputs">
+            <h5>NEWSLETTER</h5>
+            <h2>
+              OUR MONTHLY NEWSLETTER IS<br> CURATED BY TOP EXPERT
+            </h2>
+            <form #userForm="ngForm" (submit)="onSubmit()">
+
+              <input name="email" type="email" [(ngModel)]="subscribeEmail"
+                     #subscribeEmail1="ngModel"
+                     placeholder="Enter your e-mail here...">
+              <button type="submit">Subscribe</button>
+
+
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  </article>
+
+
+
+
+  <footer id="footer">
+
+    <br>
+    <ul class="copyright">
+      <li>
+        <a href="#">
+          <img src="../assets/logo2.png" style="display: inline; height: 50px;">
+        </a>
+      </li>
+    </ul>
+    <ul class="copyright">
+      <li>&copy;2018  DataExo - All rights reserved</li>
+    </ul>
+    <ul class="copyright">
+      <li><a href="#">Contact</a></li><li><a href="#">Privacy</a></li>
+    </ul>
+    <br>
+    <ul class="icons">
+      <li><a href="#" class="icon circle fa-twitter"><span class="label">Twitter</span></a></li>
+      <li><a href="#" class="icon circle fa-facebook"><span class="label">Facebook</span></a></li>
+      <li><a href="#" class="icon circle fa-google-plus"><span class="label">Google+</span></a></li>
+      <li><a href="#" class="icon circle fa-github"><span class="label">Github</span></a></li>
+      <li><a href="#" class="icon circle fa-dribbble"><span class="label">Dribbble</span></a></li>
+    </ul>
+
+  </footer>
+
+<!--</div>-->
+

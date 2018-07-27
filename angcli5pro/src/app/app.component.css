@@ -1,0 +1,12 @@
+.form-control {
+  width: 90%;
+  border: 1px solid #e5e6e7 !important;
+}
+.loading-button{
+  font-size: 14px;
+}
+#time-picker-wrapper {
+  z-index: 1500;
+}
+
+

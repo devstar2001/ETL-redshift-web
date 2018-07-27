@@ -1,0 +1,75 @@
+<article id="main">
+
+  <section class="wrapper style4 container" >
+    <h3 style="margin-top: 0px"><span class="icon fa-laptop"></span><strong>&nbsp;Loaders</strong></h3>
+
+    <div class="row" style="min-height: 600px">
+
+
+      <table class="table table-bordered">
+      <table class="table">
+        <thead>
+        <tr>
+          <th>No</th>
+          <th>Loader_Name </th>
+          <th>Schema </th>
+          <th>Table </th>
+          <th>Status</th>
+          <th>Modified</th>
+          <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody *ngIf="loaderList">
+        <tr *ngFor="let file of loaderList;let cnt = index">
+          <th scope="row">{{cnt + 1}}</th>
+          <td>{{file.name}}</td>
+          <td>{{file.schema}}</td>
+          <td>{{file.table_name}}</td>
+          <td>{{file.status_detail}}</td>
+          <td>{{ file.modified_date | date:'yyyy-MM-dd HH:mm:ss' }}</td>
+          <td class="btn-group">
+            <a
+              class="btn btn-default" title="Edit"
+              (click)="editLoader(file.bundle_id)"><i class="fa fa-pencil-square-o"
+                                                aria-hidden="true"></i></a>
+            <a
+              class="btn btn-default" title="Delete"
+              (click)="deleteLoader(file.bundle_id, cnt)"><i *ngIf="!isDeletings[cnt]" class="fa fa-trash-o"
+                                                       aria-hidden="true"></i>
+              <i *ngIf="isDeletings[cnt]" class="fa fa-refresh fa-spin "></i></a>
+            <a class="btn btn-default" title="Copy"
+               (click)="copyLoader(file.bundle_id, cnt)"><i *ngIf="!isCopyings[cnt]" class="fa fa-files-o"
+                                                      aria-hidden="true"></i>
+              <i *ngIf="isCopyings[cnt]" class="fa fa-refresh fa-spin "></i>
+            </a>
+            <a class="btn btn-default" title="Run"
+               (click)="runLoader(file.bundle_id, cnt)">
+              <i *ngIf="!isRunnings[cnt]" class="fa fa-play"></i>
+              <i *ngIf="isRunnings[cnt]" class="fa fa-refresh fa-spin "></i>
+            </a>
+          </td>
+        </tr>
+        </tbody>
+        <tbody *ngIf="!loaderList && !loadingData">
+        <tr>
+          <th colspan="2">No Data</th>
+        </tr>
+        </tbody>
+        <tbody *ngIf="!loaderList && loadingData">
+        <tr>
+          <th colspan="6">
+            <h3 style="text-align: center;color: #eea236">Loading</h3>
+            <div class="spinner">
+              <div class="bounce1"></div>
+              <div class="bounce2"></div>
+              <div class="bounce3"></div>
+            </div>
+          </th>
+        </tr>
+        </tbody>
+      </table></table>
+    </div>
+
+  </section>
+</article>
+

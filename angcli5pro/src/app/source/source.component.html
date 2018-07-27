@@ -1,0 +1,389 @@
+<article id="main">
+
+  <section class="wrapper style4 s3-container" style="color:black;">
+    <h3 style="margin-top: 0px"><span class="icon fa-laptop"></span><strong>&nbsp;S3 Storage</strong></h3>
+    <context-menu #basicMenu style="background: transparent; ">
+      <ng-template contextMenuItem  let-item   (execute)="getFullPath($event.item.filename)">
+        Copy Full Path
+      </ng-template>
+      <ng-template contextMenuItem divider="true"></ng-template>
+      <ng-template contextMenuItem let-item [enabled]="checkFolder" style="text-align: center" (execute)="CopyFiles($event.item.filename)">
+        Copy File
+      </ng-template>
+      <ng-template contextMenuItem divider="true"></ng-template>
+      <ng-template contextMenuItem let-item [enabled]="copied_file_name != 'empty' " (execute)="PastFiles()">
+        Paste File
+      </ng-template>
+      <ng-template contextMenuItem divider="true"></ng-template>
+      <ng-template contextMenuItem let-item [enabled]="copied_file_name != 'empty' " (execute)="MoveFiles()">
+        Move Here
+      </ng-template>
+    </context-menu>
+
+    <context-menu #headerMenu>
+      <ng-template contextMenuItem let-item [enabled]="copied_file_name != 'empty' " (execute)="PastFiles()">
+        Paste File
+      </ng-template>
+      <ng-template contextMenuItem divider="true"></ng-template>
+      <ng-template contextMenuItem let-item [enabled]="copied_file_name != 'empty' " (execute)="MoveFiles()">
+        Move Here
+      </ng-template>
+    </context-menu>
+
+
+    <div class="row" align="center" >
+      <table class="table table-bordered " style="width: 1200px; margin-bottom: 2px;height: 666px">
+
+        <tr style="height: min-content;">
+          <td align="center" width="400px">
+            <div align="center" style="white-space: nowrap;">
+              <button *ngIf="buckets != undefined" (click)="OpenNewModal(newBucketTemplate)" class="bucket-button btn btn-default" ><i class="fa fa-plus-square"></i><span>&nbsp;&nbsp;</span>New bucket</button>
+              <button *ngIf="buckets != undefined" (click)="OpenNewModal(delBucketConfirmTemplate)" class="bucket-button btn btn-default" ><i class="fa fa-remove"></i><span>&nbsp;</span>Delete bucket</button>
+              <button (click)="RefreshSources()" class="bucket-button btn btn-default">
+                <i [ngClass]="loadingData ? 'fa fa-refresh fa-spin':'fa fa-refresh' "></i><span>&nbsp;</span> Refresh
+              </button>
+            </div>
+          </td>
+          <td width="800px"  style="white-space: nowrap;">
+            <div class="table-responsive" style="width:620px; display: block;float: left" >
+              <span *ngIf="source_path_list != undefined && !edit_mode" class="split-button" >
+              <span *ngFor="let spath of source_path_list; let counter = index " class="split-button">
+              <button class="split-button" (click)="pathTagsClick(counter)"  [title]="spath" style="border: none">
+              <span >{{spath}}</span>
+              </button>
+              </span>
+              </span>
+            </div>
+
+            <span *ngIf="edit_mode" class="icon-button" >
+              <input type="text" (keypress)="EditMode_GetSources($event)"  [(ngModel)]="edit_source" #name="ngModel" name="spath"
+                     style="width:600px;color:#303030">
+            </span>
+
+            <button ngxClipboard [cbContent]="source_path" [class.btn-default]= "isCopied" (cbOnSuccess)="copyToClipboardMsg('Path')" class="icon-button pull-right" title="copy path">
+              <span class="fa fa-copy"></span>
+            </button>
+            <button  (click)="OpenNewModal(filterTemplate)" [style.background-color]="OnFilterStyle()"  class="icon-button pull-right" title="filter">
+              <span class=" fa fa-search"></span>
+            </button>
+            <button (click)="OnFlateButton_Click()" [style.background-color]="OnFlateStyle()" class="icon-button pull-right" title="enable/disable flat mode">
+              <span class=" fa fa-flask" ></span>
+            </button>
+            <button (click)="OnEditButton()" class="icon-button pull-right" [style.background-color]="OnEditStyle()"  title="enable/disable edit mode">
+              <span class=" glyphicon glyphicon-edit"></span>
+            </button>
+          </td>
+        </tr>
+
+        <tr>
+          <td width="400px">
+            <div *ngIf="buckets != undefined" class="table-responsive" style="max-width: 380px;height: 600px;">
+              <mat-selection-list  #list1 style="width:inherit"  >
+                <mat-list-option (selectionChange)="onSelectedOptionsChange($event, bucket)"
+
+                                 [selected]="bucket.selected" [value]="bucket.Name"
+                                 *ngFor="let bucket of buckets" >
+                  <div style="white-space: nowrap;">
+                    <mat-icon matListIcon style="color:#28b78f;vertical-align: sub">folder</mat-icon>
+
+                    <span >{{bucket.Name}}</span>
+                  </div>
+                </mat-list-option>
+              </mat-selection-list>
+            </div>
+            <div *ngIf="buckets == undefined" class="table-responsive" style="max-width: 380px;height: 600px;">
+              <mat-selection-list #list2  style="width:inherit ">
+                <mat-list-option (selectionChange)="onSelectedOptionsChange2(ufolder)"
+
+                                 [selected]="ufolder.selected" [value]="ufolder.Name"
+                                 *ngFor="let ufolder of user_root_folder" >
+                  <div style="white-space: nowrap;">
+                    <mat-icon matListIcon style="color:#28b78f;vertical-align: sub">folder</mat-icon>
+
+                    <span >{{ufolder.Name}}</span>
+                  </div>
+                </mat-list-option>
+              </mat-selection-list>
+
+            </div>
+          </td>
+
+          <td width="800px">
+            <div *ngIf="fileList" class="table-responsive" style="max-width: 780px;height: 600px;">
+
+              <table  class="table " matSort (matSortChange)="sortSourceData($event)">
+
+                <tr [contextMenu]="headerMenu" >
+                  <th ></th>
+                  <th mat-sort-header="filename">FileName</th>
+                  <th mat-sort-header="size">Size</th>
+                  <th mat-sort-header="type">Type</th>
+                  <th mat-sort-header="created">LastModified</th>
+                  <th mat-sort-header="store"><span style="white-space: nowrap;">Storage Class</span></th>
+                </tr>
+
+                <tr *ngFor="let file of sortedSourceData; let counter = index" [contextMenu]="basicMenu" [contextMenuSubject]="file"
+                    (click)="setClickedRow(counter)" [class.active]="counter == selectedRowIndex" (dblclick)="folderOpen(file.filename)" >
+                  <td>
+                    <i [class]="getIconClass(file.filename)" style="font-size:24px" aria-hidden="true"></i>
+                  </td>
+                  <td><label (dblclick)="folderOpen(file.filename)" style="cursor: pointer;white-space: nowrap;">{{file.filename}}</label></td>
+                  <td> {{file.filename.substr(file.filename.length-1) != '/' ? CalcSize(file.size):""}}</td>
+                  <td> <span style="white-space: nowrap;">{{file.file_type}}</span></td>
+                  <!--[disabled]="file.filename.substr(file.filename.length-3) =='pdf'||file.filename.substr(file.filename.length-1) =='/'"-->
+
+                  <td ><span style="white-space: nowrap;">{{file.created | date:'yyyy-MM-dd_HH:mm:ss'}}</span></td>
+                  <td ><span style="white-space: nowrap;">{{file.storage_class}}</span></td>
+
+                </tr>
+
+
+              </table>
+
+            </div>
+            <div *ngIf="!fileList" style="width: 100%; height: 100%">
+              <table  width="100%" style="height: 100%">
+
+                <tbody *ngIf="!fileList && !loadingData">
+                <tr>
+                  <th colspan="2">No Data</th>
+                </tr>
+                </tbody>
+
+                <tbody *ngIf="!fileList && loadingData">
+                <tr>
+                  <td align="center">
+                    <div class="row" align="center" style="vertical-align: middle">
+                      <h3 style="text-align: center;color: #eea236">LOADING</h3>
+                      <div class="spinner">
+                        <div class="bounce1"></div>
+                        <div class="bounce2"></div>
+                        <div ></div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                </tbody>
+
+              </table>
+            </div>
+          </td>
+        </tr>
+
+      </table>
+
+
+
+      <table class="table table-bordered" style="width: 1200px; margin-bottom: 2px;">
+        <tbody>
+        <tr>
+          <td align="center" width="100%">
+            <div class="btn-group " dropdown [dropup]="true" style="display: block;float: left;margin-left: 30px">
+              <button dropdownToggle  aria-controls="dropdown-dropup"
+                      class="source-button btn btn-default " style="width: 130px"><i class="fa fa-cloud-upload"></i><span>&nbsp;&nbsp;</span>From Other<span>&nbsp;&nbsp;</span>
+                <span class="caret"></span></button>
+              <ul id="dropdown-dropup" *dropdownMenu class="dropdown-menu"
+                  role="menu" aria-labelledby="button-dropup">
+                <li role="menuitem"><a class="dropdown-item" [routerLink]="['/sources/scrape']">From Web</a></li>
+                <li role="menuitem"><a class="dropdown-item" [routerLink]="['/sources/add']">From Local</a></li>
+
+              </ul>
+            </div>
+
+            <button (click)="OnDownloadFileAndFolder()" [disabled]="selectedRowIndex == -1 || selectedFileName.substring(selectedFileName.length-1) =='/'"
+                    [style.border-color]="SetOnlyFileBtnStyle()" class="source-button btn btn-default">
+              <i class="fa fa-cloud-download"></i><span>&nbsp;&nbsp;</span>Download</button>
+            <!--<button [disabled]="!selectedItem"-->
+            <!--class="source-button btn btn-default" ><i class="glyphicon glyphicon-move"></i><span>&nbsp;&nbsp;</span>Move</button>-->
+
+            <button (click)="OpenNewModal(renameTemplate)" [disabled]="selectedRowIndex == -1||flat_mode" [style.border-color]="SetRenameBtnStyle()"
+                    class="source-button btn btn-default" ><i class="fa fa-edit"></i><span>&nbsp;&nbsp;</span>Rename</button>
+            <button (click)="OpenNewModal(delFolderTemplate)" [disabled]="selectedRowIndex == -1" [style.border-color]="SetBtnStyle()" class="source-button btn btn-default"><i class="fa fa-close"></i><span>&nbsp;&nbsp;</span>
+              Delete</button>
+            <button (click)="OpenNewModal(newFolderInputTemplate)" class="source-button btn btn-default" style="width: 120px"><i class="fa fa-folder-o"></i><span>&nbsp;&nbsp;</span>
+              New Folder</button>
+            <button style="width: 120px" [disabled]="selectedRowIndex == -1 || selectedFileName.substr(selectedFileName.length-3) !='pdf' " (click)="GoConvertPdf()" [style.border-color]="SetPDFBtnStyle()"
+                    class="source-button btn btn-default" ><i class="fa fa-copy"></i><span>&nbsp;&nbsp;</span>PDFToCSV</button>
+            <button (click)="SourceToLoader()"  [disabled]="selectedRowIndex != -1 && selectedFileName.substring(selectedFileName.length-3) !='txt' || selectedFileName.substring(selectedFileName.length-3) !='csv' && selectedFileName.substring(selectedFileName.length-1) !='/' " style="width: 120px"
+                    [style.border-color]="SetOnlyCSVFileBtnStyle()"
+                    class="source-button btn btn-default" >
+              <i  [ngClass]="bundleIDGetting?'fa fa-circle-o-notch fa-spin': 'fa fa-hand-o-up'"></i>
+              <span>&nbsp;&nbsp;</span>Redshift</button>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+
+    </div>
+
+
+    <ng-template #filterTemplate >
+      <form (submit)="SaveFilterString()">
+        <div class="modal-header">
+          <h4 class="modal-title pull-left">Please insert filter string.</h4>
+          <button type="button" class="close pull-right"
+                  aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body" >
+          <div class="form-group">
+            <label class="control-label">filter String : </label>
+          </div>
+          <div>
+            <input type="text" [(ngModel)]="filter_string" name="filter_string">
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <div class="text-right">
+            <button type="submit" style="padding: 5px 10px; font-size: 12px; line-height: 1.5; border-radius: 3px; background: #d95daf;" class="btn btn-success">Save</button>
+            <button type="button" class="btn btn-default" (click)="hideModal()" style="padding: 5px 50px; margin: 20px; font-size: 12px; line-height: 1.5; border-radius: 3px; background: #337ab7;">
+              Cancel</button>
+          </div>
+        </div>
+      </form>
+    </ng-template>
+    <ng-template #newBucketTemplate >
+      <form (submit)="CreateBucket()">
+        <div class="modal-header">
+          <h4 class="modal-title pull-left">Please insert new Bucket name.</h4>
+          <button type="button" class="close pull-right"
+                  aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body" >
+          <div class="form-group">
+            <label class="control-label">Bucket Name : </label>
+          </div>
+          <div>
+            <input type="text" [(ngModel)]="new_bucket_name" name="new_bucket_name">
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <div class="text-right">
+            <button type="submit" style="padding: 5px 10px; font-size: 12px; line-height: 1.5; border-radius: 3px; background: #d95daf;" class="btn btn-success">Save</button>
+            <button type="button" class="btn btn-default" (click)="hideModal()" style="padding: 5px 50px; margin: 20px; font-size: 12px; line-height: 1.5; border-radius: 3px; background: #337ab7;">
+              Cancel</button>
+          </div>
+        </div>
+      </form>
+    </ng-template>
+    <ng-template #delBucketConfirmTemplate >
+      <form (submit)="OnDeleteBucket()">
+        <div class="modal-header">
+          <h4 class="modal-title pull-left">Delete This Bucket Really?</h4>
+          <button type="button" class="close pull-right"
+                  aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body" >
+          <div class="form-group">
+            <label class="control-label">Bucket Name : {{current_bucket}} </label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <div class="text-right">
+            <button type="submit" style="padding: 5px 10px; font-size: 12px; line-height: 1.5; border-radius: 3px; background: #d95daf;" class="btn btn-success">DELETE</button>
+            <button type="button" class="btn btn-default" (click)="hideModal()" style="padding: 5px 50px; margin: 20px; font-size: 12px; line-height: 1.5; border-radius: 3px; background: #337ab7;">
+              Cancel</button>
+          </div>
+        </div>
+      </form>
+    </ng-template>
+    <!-- folder template -->
+    <ng-template #newFolderInputTemplate >
+      <form (submit)="OnMaKeFolder()">
+        <div class="modal-header">
+          <h4 class="modal-title pull-left">Please input new folder name.</h4>
+          <button type="button" class="close pull-right"
+                  aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body" >
+          <div class="form-group">
+            <label class="control-label">Folder Name :  </label>
+          </div>
+          <div>
+            <input type="text" [(ngModel)]="folder_name" name="folder_name">
+          </div>
+          <div class="form-group">
+            <label class="control-label">Position : {{source_path + folder_name +"/"}} </label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <div class="text-right">
+            <button type="submit" style="padding: 5px 10px; font-size: 12px; line-height: 1.5; border-radius: 3px; background: #d95daf;" class="btn btn-success">Create</button>
+            <button type="button" class="btn btn-default" (click)="hideModal()" style="padding: 5px 50px; margin: 20px; font-size: 12px; line-height: 1.5; border-radius: 3px; background: #337ab7;">
+              Cancel</button>
+          </div>
+        </div>
+      </form>
+    </ng-template>
+    <ng-template #delFolderTemplate >
+      <form (submit)="OnDeleteFileAndFolder()">
+        <div class="modal-header">
+          <h4 class="modal-title pull-left">Delete This
+            <span *ngIf="selectedFileName.substr(selectedFileName.length-1) =='/'">Folder</span>
+            <span *ngIf="selectedFileName.substr(selectedFileName.length-1) !='/'">File</span> Really?</h4>
+          <button type="button" class="close pull-right"
+                  aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body" >
+          <div class="form-group">
+            <label class="control-label"><span *ngIf="selectedFileName.substr(selectedFileName.length-1) =='/'">Folder</span>
+              <span *ngIf="selectedFileName.substr(selectedFileName.length-1) !='/'">File</span> Full Path : {{source_path+selectedFileName}} </label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <div class="text-right">
+            <button type="submit" style="padding: 5px 10px; font-size: 12px; line-height: 1.5; border-radius: 3px; background: #d95daf;" class="btn btn-success">Delete</button>
+            <button type="button" class="btn btn-default" (click)="hideModal()" style="padding: 5px 50px; margin: 20px; font-size: 12px; line-height: 1.5; border-radius: 3px; background: #337ab7;">
+              Cancel</button>
+          </div>
+        </div>
+      </form>
+    </ng-template>
+    <ng-template #renameTemplate >
+      <form (submit)="OnRenameFileAndFolder()">
+        <div class="modal-header">
+          <h4 class="modal-title pull-left">Rename This
+            <span *ngIf="selectedFileName.substr(selectedFileName.length-1) =='/'">Folder</span>
+            <span *ngIf="selectedFileName.substr(selectedFileName.length-1) !='/'">File</span> Really?</h4>
+          <button type="button" class="close pull-right"
+                  aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body" >
+          <div class="form-group">
+            <label class="control-label"><span *ngIf="selectedFileName.substr(selectedFileName.length-1) =='/'">Old Folder</span>
+              <span *ngIf="selectedFileName.substr(selectedFileName.length-1) !='/'">Old File</span> Full Path : {{source_path+selectedFileName}} </label>
+          </div>
+          <div class="form-group">
+            <label class="control-label">New <span *ngIf="selectedFileName.substr(selectedFileName.length-1) =='/'"> Folder </span>
+              <span *ngIf="selectedFileName.substr(selectedFileName.length-1) !='/'">File </span> Name :  </label>
+            {{source_path}}
+            <input type="text" [(ngModel)]="new_file_or_name" name="new_file_or_name" style="width:300px">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <div class="text-right">
+            <button type="submit" style="padding: 5px 10px; font-size: 12px; line-height: 1.5; border-radius: 3px; background: #d95daf;" class="btn btn-success">Rename</button>
+            <button type="button" class="btn btn-default" (click)="hideModal()" style="padding: 5px 50px; margin: 20px; font-size: 12px; line-height: 1.5; border-radius: 3px; background: #337ab7;">
+              Cancel</button>
+          </div>
+        </div>
+      </form>
+    </ng-template>
+    <!--<ng4-loading-spinner></ng4-loading-spinner>-->
+
+
+  </section>
+</article>

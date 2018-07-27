@@ -1,0 +1,10 @@
+#!/bin/sh
+# /etc/rc.local
+#
+# This script will be executed *after* all the other init scripts.
+# You can put your own initialization stuff in here if you don't
+# want to do the full Sys V style init stuff.
+
+touch /var/lock/subsys/local
+
+sudo /usr/local/bin/uwsgi --emperor /home/ec2-user/redshift_loader/backend/backend_uwsgi.ini --daemonize /var/log/uwsgi-emperor.log --uid ec2-user --gid ec2-user

@@ -1,0 +1,251 @@
+<article id="main">
+
+  <section class="wrapper style4 s3-container" style="color:black;">
+<div class="row" align="center">
+    <h2>Convert PDF to CSV </h2>
+</div>
+<div class="row">
+    <nav class="navbar navbar-default navbar-inverse"
+         style="margin-bottom: 0px;">
+        <div class="container-fluid">
+            <div class="wizard-links text-center"
+                 id="bs-example-navbar-collapse-1">
+                <a id="wizard-previous-btn"
+                   class="btn navbar-btn btn-sm btn-primary navbar-left"
+                   [routerLink]="['/sources']">Back</a>
+            </div>
+        </div>
+    </nav>
+</div>
+
+<hr>
+
+<!--<div class="row">-->
+    <!--<div class="col-sm-1 summary-status-ok">-->
+        <!--<i class="fa fa-check-circle fa-3x summary-status-ok"-->
+           <!--aria-hidden="true"></i>-->
+    <!--</div>-->
+    <!--<div class="col-sm-9">-->
+        <!--<h3>PDF Information</h3>-->
+        <!--<div>-->
+            <!--<span style="margin-left: 30px">Page number :</span>-->
+            <!--<input type="text"  style="width: 50px; color: #303030; " [disabled]="isGettingInfo"-->
+                   <!--name="end_page_num" required  [(ngModel)]="page_number"-->
+                   <!--#end_page_num="ngModel">-->
+
+            <!--<a class="btn btn-primary pull-right" style="width: 120px;padding: 5px 10px; font-size: 12px; line-height: 1.5; border-radius: 3px; background: #28b78f;"-->
+
+               <!--(click)="pdfview()">View PDF</a>-->
+            <!--<a class="btn btn-primary pull-right" style="width: 120px;padding: 5px 10px; font-size: 12px; line-height: 1.5; border-radius: 3px; background: #b682b7;"-->
+
+               <!--(click)="getpdf()"><span [ngClass]="isGettingInfo ? 'loading-button':''" >-->
+                <!--<i [ngClass]="isGettingInfo ? 'fa fa-gear fa-spin':'fa '"></i>-->
+              <!--&nbsp;Get PDF Info&nbsp;</span></a>-->
+        <!--</div>-->
+        <!--<p class="lg-subtitle " style="padding-left: 30px">-->
+            <!--File name : {{filename}}<br>-->
+            <!--All pages : {{all_page_counts}}<br>-->
+
+        <!--</p>-->
+    <!--</div>-->
+<!--</div>-->
+<!--<div class="row">-->
+    <!--<div class="col-sm-10" align="center">-->
+        <!--<a class="btn btn-primary pull-right" style="width: 120px; padding: 5px 10px; font-size: 12px; line-height: 1.5; border-radius: 3px; background: #d95daf;"-->
+
+           <!--(click)="testOnePage()">-->
+          <!--<span [ngClass]="isTesting ? 'loading-button':''" >-->
+                <!--<i [ngClass]="isTesting ? 'fa fa-gear fa-spin':'fa '"></i>-->
+              <!--&nbsp;Page Test&nbsp;</span>-->
+          <!--</a>-->
+
+        <!--<a class="btn btn-primary pull-right" style="width: 120px; padding: 5px 10px; font-size: 12px; line-height: 1.5; border-radius: 3px; background: #28b78f;"-->
+
+           <!--(click)="ShowEditWindow()">-->
+            <!--<span *ngIf="!showEditWindow_flag">Show Edit Window</span>-->
+            <!--<span *ngIf="showEditWindow_flag">Hide Edit Window</span>-->
+        <!--</a>-->
+    <!--</div>-->
+<!--</div>-->
+
+<!--<div class="row " align="center" style="margin-top: 5px" *ngIf="showEditWindow_flag && raw_data!=undefined">-->
+    <!--<div class="row">-->
+        <!--<h3>Page : {{page_number}}</h3>-->
+        <!--&lt;!&ndash;<a class="pull-right"  style=" text-align:center; color:khaki; cursor: pointer" (click)="HideData()">Hide Editing</a>&ndash;&gt;-->
+    <!--</div>-->
+    <!--&lt;!&ndash;Real Converted page data&ndash;&gt;-->
+    <!--<div class="row" >-->
+        <!--<div class="row" align="center" style="font-size: 16px">Test Converted Data</div>-->
+        <!--<hr>-->
+        <!--<span *ngIf="testerror" style="text-align: center"> Can't get table structure on page : {{page_number}}</span>-->
+        <!--<div class="table-responsive">-->
+            <!--<div class="col-sm-12" style="max-width: 100%; max-height: 300px;">-->
+                <!--<table class="table table-bordered table-fixed">-->
+                    <!--<thead>-->
+                    <!--<tr align="center"></tr>-->
+                    <!--</thead>-->
+                    <!--<tbody >-->
+                    <!--<tr *ngFor="let realRow of real_data">-->
+
+                        <!--<ng-container *ngFor="let loaderSampleHeader of real_data[0];let i = index">-->
+
+                            <!--<td>{{ realRow[i] }}</td>-->
+                        <!--</ng-container>-->
+
+                    <!--</tr>-->
+
+                    <!--</tbody>-->
+                <!--</table>-->
+            <!--</div>-->
+
+        <!--</div>-->
+        <!--<hr>-->
+    <!--</div>-->
+    <!--&lt;!&ndash; Editable page headers &ndash;&gt;-->
+    <!--<div class="row" align="center" style="font-size: 16px">Setting Table </div>-->
+    <!--<div class="row" align="center">-->
+        <!--<div class="table-responsive">-->
+            <!--<div style="width: 70%; height: 100%;">-->
+                <!--<table class="table table-bordered table-fixed " *ngIf="editableTableService.tableHeadersObjects.length !=0" >-->
+                    <!--<thead style="color:white">-->
+                    <!--<tr>-->
+                        <!--<th>No</th>-->
+                        <!--<th *ngFor="let title of editableTableService.tableHeadersObjects">{{title.content}}</th>-->
+                        <!--<th>Action</th>-->
+                    <!--</tr>-->
+                    <!--</thead>-->
+                    <!--<tbody style="color: rgba(248,182,68,0.8)">-->
+                    <!--<tr *ngFor="let row of editableTableService.tableRowsObjects;  let counter = index" >-->
+                        <!--<td>{{counter+1}}</td>-->
+                        <!--<td *ngFor="let cell of row.cells">-->
+                            <!--<span *ngIf="editableTableService.isEditing.indexOf(row) === -1 && editableTableService.checkTypeOf(cell.content) !== 'boolean'">{{cell.content}}</span>-->
+                            <!--<span *ngIf="editableTableService.isEditing.indexOf(row) === -1 && editableTableService.checkTypeOf(cell.content) == 'boolean'">-->
+                             <!--{{cell.content ? 'Activo' : 'Inactivo'}}-->
+                            <!--</span>-->
+                            <!--<div class="ui input" *ngIf="!(editableTableService.isEditing.indexOf(row) == -1) && editableTableService.checkTypeOf(cell.content) !== 'boolean'">-->
+                                <!--<input type="text" [(ngModel)]="cell.content" [name]="cell.content">-->
+                            <!--</div>-->
+                            <!--<div *ngIf="!(editableTableService.isEditing.indexOf(row) == -1) && editableTableService.checkTypeOf(cell.content) === 'boolean'" class="field checkboxContainer">-->
+                                <!--<div class="ui toggle checkbox">-->
+                                    <!--<input type="checkbox" name="public" [(ngModel)]="cell.content" name="active">-->
+                                    <!--<label>{{cell.content ? 'Activo' : 'Inactivo'}}</label>-->
+                                <!--</div>-->
+                            <!--</div>-->
+                        <!--</td>-->
+                        <!--<td width="20%" style="color:#b682b7">-->
+                            <!--<button *ngIf="editableTableService.isEditing.indexOf(row) === -1 " (click)="editableTableService.editRow(row)">-->
+                                <!--<i class="fa fa-pencil-square-o"></i>-->
+                            <!--</button>-->
+                            <!--<button *ngIf="!(editableTableService.isEditing.indexOf(row) == -1)" (click)="editableTableService.saveRow(row)">-->
+                                <!--<i class="fa fa-check"></i>-->
+                            <!--</button>-->
+                            <!--<button *ngIf="editableTableService.isEditing.indexOf(row) === -1" (click)="editableTableService.deleteRow(row)">-->
+                                <!--<i class="fa fa-times"></i>-->
+                            <!--</button>-->
+                            <!--<button *ngIf="!(editableTableService.isEditing.indexOf(row) == -1) " (click)="editableTableService.cancelEdition(row)">-->
+                                <!--<i class="fa fa-times"></i>-->
+                            <!--</button>-->
+                        <!--</td>-->
+                    <!--</tr>-->
+                    <!--</tbody>-->
+                    <!--<tfoot style="color: #d95daf">-->
+                    <!--<tr>-->
+                        <!--<th></th>-->
+                        <!--<th *ngFor="let title of editableTableService.tableHeadersObjects"></th>-->
+                        <!--<th>-->
+                            <!--<button (click)="editableTableService.addRow()">-->
+                                <!--<i class="fa fa-plus"></i>-->
+                            <!--</button>-->
+                        <!--</th>-->
+                    <!--</tr>-->
+                    <!--</tfoot>-->
+                <!--</table>-->
+            <!--</div>-->
+        <!--</div>-->
+
+    <!--</div>-->
+
+    <!--<div class="row" align="center" style="font-size: 16px">Basic Data from PDF</div>-->
+    <!--<hr>-->
+    <!--&lt;!&ndash; Basic page data&ndash;&gt;-->
+    <!--<span *ngIf="raw_data.length == 0 " style="text-align: center"> Can't get table structure on page : {{page_number}}</span>-->
+    <!--<div class="row" >-->
+        <!--<div class="table-responsive">-->
+            <!--<div class="col-sm-12" style="max-width: 100%; max-height: 300px;">-->
+                <!--<table class="table table-bordered table-fixed">-->
+                    <!--<thead>-->
+                    <!--<tr  align="center">-->
+                    <!--</tr>-->
+                    <!--</thead>-->
+                    <!--<tbody >-->
+                    <!--<tr *ngFor="let rawRow of raw_data">-->
+                        <!--<ng-container *ngFor="let loaderSampleHeader of raw_data[0];let i = index">-->
+                            <!--<td >{{ rawRow[i] }}</td>-->
+                        <!--</ng-container>-->
+                    <!--</tr>-->
+
+                    <!--</tbody>-->
+                <!--</table>-->
+            <!--</div>-->
+        <!--</div>-->
+        <!--<hr>-->
+    <!--</div>-->
+    <!--<div>-->
+
+<!--</div>-->
+
+
+<!--&lt;!&ndash; Converting area&ndash;&gt;-->
+<!--<div class="row" style="margin-bottom: 50px">-->
+    <!--<hr>-->
+    <!--<div class="row summary-section col-md-12">-->
+        <!--<div class="col-sm-1 summary-status-ok">-->
+            <!--<i class="fa fa-check-circle fa-3x summary-status-ok"-->
+               <!--aria-hidden="true"></i>-->
+        <!--</div>-->
+        <!--<div class="col-sm-9">-->
+            <!--<h3>Converting Status</h3>-->
+                <!--<div>-->
+                    <!--Start page number :-->
+                    <!--<input type="text" style="width: 50px; color: #303030;" [disabled]="isConverting"-->
+                                     <!--name="start_page_num" required  [(ngModel)]="start_page"-->
+                                     <!--#start_page_num="ngModel">-->
+
+                    <!--<span style="margin-left: 30px">End page number :</span>-->
+                    <!--<input type="text"  style="width: 50px; color: #303030; " [disabled]="isConverting"-->
+                           <!--name="end_page_num" required  [(ngModel)]="end_page"-->
+                           <!--#end_page_num="ngModel">-->
+
+                <!--</div>-->
+            <!--<p class="lg-subtitle ">-->
+                <!--Current percent : {{process_percent}} <br>-->
+                <!--Current page : {{process_page}}<br>-->
+                <!--Result : {{task_state}}<br>-->
+
+            <!--</p>-->
+
+            <!--<div *ngIf="task_state != undefined && task_state!='Nothing running task'" class="progress" style="margin-bottom: 0;">-->
+                <!--<div class="progress-bar" role="progressbar"-->
+                     <!--[ngStyle]="{ 'width': process_percent + '%' }"></div>-->
+            <!--</div>-->
+            <!--{{date}}-->
+
+        <!--</div>-->
+        <!--<div class="col-sm-2">-->
+            <!--<a-->
+                <!--style="padding: 5px 10px; font-size: 12px; line-height: 1.5; border-radius: 3px; background: #d95daf;"-->
+
+                <!--class="btn btn-primary"-->
+                <!--(click)="ConvertPdf()">-->
+              <!--<span [ngClass]="isConverting ? 'loading-button':''" >-->
+                <!--<i [ngClass]="isConverting ? 'fa fa-gear fa-spin':'fa '"></i>-->
+              <!--&nbsp;-->
+                <!--Convert&nbsp;&nbsp;</span></a>-->
+
+
+        <!--</div>-->
+
+    <!--</div>-->
+<!--</div>-->
+  </section>
+</article>

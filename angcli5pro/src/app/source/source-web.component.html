@@ -1,0 +1,488 @@
+<article id="main">
+
+  <section class="wrapper style4 container">
+    <context-menu #basicMenu style="background: transparent; ">
+      <ng-template contextMenuItem  let-item   (execute)="editScraper($event.item.id)">
+        Edit
+      </ng-template>
+      <ng-template contextMenuItem divider="true"></ng-template>
+      <ng-template contextMenuItem let-item  (execute)="removeScraper($event.item.id)">
+        Delete
+      </ng-template>
+
+    </context-menu>
+
+  <div class="row" >
+    <div class="col-xs-8">
+      <h2 class="page-title">
+        <i class="fa fa-object-ungroup" aria-hidden="true"></i> Scrape Web Tables
+      </h2>
+    </div>
+    <div class="col-xs-4 text-right" style="margin-top: 20px;">
+      <a class="btn btn-default" [routerLink]="['/sources']">Done</a>
+    </div>
+  </div>
+  <div class="row">
+    <div class="lodr-pretty-table">
+        <tabset #staticTabs>
+          <tab heading="Scraper {{scraper_flag}}" id="tab1" (select)="selectTab(1)">
+            <form #extractForm="ngForm" class="form-horizontal" style="margin: 20px 30px 30px 30px">
+              <div class="form-group">
+                <label class="control-label col-sm-2" for="url">URL:</label>
+                <div class="col-sm-10" [class.has-error]="web_url.invalid && web_url.touched">
+
+                  <input #web_url="ngModel" required type="text" class="form-control" id="url" [(ngModel)]="site_url" placeholder="Enter URL" name="url">
+
+                  <label class="control-label" *ngIf="web_url.errors && web_url.touched && web_url?.errors.required ">
+                    <i class="fa fa-times-circle-o"></i> Web url is required.
+                  </label>
+
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                  <button (click)="Try_Scrape()" [disabled]="web_url.invalid" type="button" class="btn btn-default" style="background-color: transparent; color: #000303">
+                    <i [ngClass]="is_extracting ? 'fa fa-refresh fa-spin':'fa fa-refresh' "></i><span>&nbsp;</span>
+                    Extract</button>
+
+                </div>
+              </div>
+              <hr style="border-top: 1px solid #eee">
+              <div class="form-group">
+                <label class="control-label col-sm-2" >TABLES(Index):</label>
+                <div class="col-sm-10" [class.has-error]="table_number.invalid && table_number.touched">
+                  <input #table_number="ngModel" required readonly type="text" class="form-control normal-class" [(ngModel)]="selected_table_numbers" placeholder="Select Tables." name="table_number">
+                  <label class="control-label" *ngIf="table_number.errors && table_number.touched && table_number?.errors.required ">
+                    <i class="fa fa-times-circle-o"></i> Table Number List is required.
+                  </label>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="control-label col-sm-2" for="upload_path">UPLOAD PATH(S3):</label>
+                <div class="col-sm-10">
+                  <input readonly type="text" class="form-control normal-class" id="upload_path" [(ngModel)]="source_path" placeholder="Type S3 Storage Path" name="upload_path">
+
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                  <button [disabled]="selected_table_numbers.length<1" (click)="uploadToRedshift()" type="button" class="btn btn-default" style="background-color: transparent; color: #000303">
+                    <i [ngClass]="is_uploading ? 'fa fa-refresh fa-spin':'fa fa-refresh' "></i><span>&nbsp;</span>
+                    Upload(Redshift)</button>
+                </div>
+              </div>
+              <hr style="border-top: 1px solid #eee">
+              <div class="form-group">
+                <label class="control-label col-sm-2 ">
+                    SCHEDULE:
+                </label>
+                <label class="control-label col-sm-10"> {{schedule_frequency}}</label>
+
+
+              </div>
+              <div class="form-group" *ngIf="schedule_frequency != 'None'">
+                <label class="control-label col-sm-2 ">
+                    DETAIL :
+                </label>
+                <div class="control-label col-sm-10">
+                  <p *ngIf="schedule_frequency == 'Once'" class="lg-subtitle ">
+                    This scraper was scheduled to run once on {{current_date +" " + current_time + " " + current_timezone}}.
+                  </p>
+                  <ul *ngIf="schedule_frequency == 'Minutely'" class="lg-subtitle ">
+                  <li>
+                    Every {{frequency + " " + frequencyUnit}}
+                    <span *ngIf="hours_of_day.length !=0">
+                      {{" at "+ hours_of_day }}
+                    </span>
+
+                  </li>
+                  <li>
+                    Load starts on : {{current_date +" " + current_time + " " + current_timezone}}.
+                  </li>
+
+                </ul>
+                  <ul *ngIf="schedule_frequency == 'Hourly'" class="lg-subtitle ">
+                    <li>
+                      Every {{frequency+ " " + frequencyUnit}}
+                      <span *ngIf="days_of_week.length !=0">
+                      {{" on "+ days_of_week}}
+                    </span>
+
+
+                    </li>
+                    <li>
+                      Load starts on : {{current_date +" " + current_time + " " + current_timezone}}.
+                    </li>
+
+                  </ul>
+                  <ul *ngIf="schedule_frequency == 'Daily'" class="lg-subtitle ">
+                    <li>
+                      Every {{frequency + " " + frequencyUnit}}
+
+                    </li>
+                    <li>
+                      Load starts on : {{current_date +" " + current_time + " " + current_timezone}}.
+                    </li>
+
+                  </ul>
+                  <ul *ngIf="schedule_frequency == 'Weekly'" class="lg-subtitle ">
+                    <li>
+                      Every load {{" on "+ days_of_week}}
+
+                    </li>
+                    <li>
+                      Load starts on : {{current_date +" " + current_time + " " + current_timezone}}.
+                    </li>
+
+                  </ul>
+                  <ul *ngIf="schedule_frequency == 'Monthly'" class="lg-subtitle ">
+                    <li>
+
+                      Every {{frequency + " " + frequencyUnit}}
+                      <span *ngIf="days_of_week.length != 0">
+                      {{" on "+ days_of_week}}
+                    </span>
+                      <span *ngIf="days_of_month != undefined">
+                      {{" on the "+ days_of_month + "(th) day"}}
+                    </span>
+
+                    </li>
+                    <li>
+                      Load starts on : {{current_date +" " + current_time + " " + current_timezone}}.
+                    </li>
+
+                  </ul>
+
+                  <ul *ngIf="schedule_frequency == 'Yearly'" class="lg-subtitle ">
+                    <li>
+                      Every year
+                      <span *ngIf="months_of_year.length !=0">
+                      {{" in the " + months_of_year +"(th) month "}}
+                    </span>
+                      <span *ngIf="days_of_month != undefined">
+                      {{" on the "+ days_of_month + "(th) day"}}
+                    </span>
+                      <span *ngIf="days_of_week.length != 0">
+                      {{" on "+ days_of_week }}
+                    </span>
+
+                    </li>
+                    <li>
+                      Load starts on : {{current_date +" " + current_time + " " + current_timezone}}.
+                    </li>
+
+                  </ul></div>
+
+
+              </div>
+
+              <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                  <button [disabled]="extractForm.invalid && is_schedule" (click)="openSelectFileModal(ScheduleTemplate)" type="button" class="btn btn-default" style="background-color: transparent; color: #000303">
+                    <i *ngIf="getting_schedule " class="fa fa-refresh fa-spin"></i><span *ngIf="!getting_schedule">SCHEDULE SETTING</span></button>
+                </div>
+              </div>
+              <hr>
+              <div class="form-group" >
+                <label class="control-label col-sm-2" for="scrap_schedule">SCRAPER NAME:</label>
+                <div class="col-sm-10" [class.has-error]="sc_name.invalid && sc_name.touched">
+                  <input #sc_name="ngModel" required type="text" class="form-control" id="scrap_schedule" [(ngModel)]="scraper_name" placeholder="Type scrap scheduler name." name="scrap_schedule">
+                  <label class="control-label" *ngIf="sc_name.errors && sc_name.touched && sc_name?.errors.required ">
+                    <i class="fa fa-times-circle-o"></i> Scheduler name is required.
+                  </label>
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                  <button (click)="scraper_Save()" [disabled]="extractForm.invalid" type="button" class="btn btn-default" style="background-color: transparent; color: #000303">
+                    <i [ngClass]="is_saving ? 'fa fa-refresh fa-spin':'fa fa-refresh' "></i><span>&nbsp;</span>
+                    Save</button>
+                  <button (click)="new_scraper()" *ngIf="scraper_flag != 'New'" type="button" class="btn btn-default" style="background-color: transparent; color: #000303">
+                    New</button>
+                </div>
+              </div>
+
+            </form>
+          </tab>
+          <tab heading="Scraper List" (select)="selectTab(2)">
+            <div style="margin-top:20px;min-height: 400px" class="table-responsive">
+              <table class="table table-bordered table-fixed" >
+                <thead>
+                <tr>
+                  <th >No</th>
+                  <th >Name</th>
+                  <th >Schedule</th>
+                  <th >Status</th>
+                  <th >Upload path</th>
+                  <th >Table Numbers</th>
+                  <th >Site</th>
+
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let sc of scraper_list;let cnt = index" (click)="onContextMenu($event, sc)">
+                  <td >{{cnt + 1}}</td>
+                  <td >{{sc.name}}</td>
+                  <td >{{sc.schedule}}</td>
+                  <td >{{sc.status_detail}}</td>
+                  <td >{{sc.upload_path}}</td>
+                  <td >{{sc.table_numbers}}</td>
+                  <td >{{sc.site}}</td>
+
+                </tr>
+
+                </tbody>
+                <tbody *ngIf="!scraper_list && is_loading">
+                <tr>
+                  <th colspan="6">
+                    <h3 style="text-align: center;color: #eea236">Loading</h3>
+                    <div class="spinner">
+                      <div class="bounce1"></div>
+                      <div class="bounce2"></div>
+                      <div class="bounce3"></div>
+                    </div>
+                  </th>
+                </tr>
+                </tbody>
+              </table>
+
+            </div>
+          </tab>
+        </tabset>
+
+      <!--</div>-->
+
+
+    </div>
+
+  </div>
+
+  <div class="row" *ngIf="tables != undefined">
+    <h3 class="statcard-number">
+      SELECT & VIEW Tables </h3>
+    <div class="lodr-pretty-table">
+      <div style="padding-bottom: 20px !important ; ">
+
+        <h4 class="statcard-number" style="display: inline">
+          TABLE LIST </h4>
+
+        <button (click)="downloadCSVfiles()" type="button" class="btn btn-default"
+                style="font-size: 12px;margin-bottom: 10px; margin-left: 40px;background-color: transparent; color: #000303;display: inline">
+          <!--<i [ngClass]="is_running ? 'fa fa-refresh fa-spin':'fa fa-refresh' "></i><span>&nbsp;</span>-->
+          Download</button>
+      </div>
+      <div style="border:1px solid #6edff0; max-height: 300px" class="table-responsive">
+        <mat-selection-list  #list1 style="width:inherit;"  >
+          <mat-list-option (selectionChange)="onSelectedOptionsChange($event, table)"
+                           [selected]="table.selected" [value]="table.name"
+                           *ngFor="let table of tables" >
+            <div style="white-space: nowrap;">
+              <mat-icon matListIcon style="color:#d1be1e;vertical-align: sub">note</mat-icon>
+
+              <span >{{table.name}}</span>
+            </div>
+          </mat-list-option>
+        </mat-selection-list>
+      </div>
+
+    </div>
+
+
+    <div *ngIf="raw_data" class="lodr-pretty-table" style="margin-top: 20px">
+      <div style="padding-bottom: 20px !important">
+        <h4 class="statcard-number">
+          TABLE CONTENT </h4>
+      </div>
+
+      <div style="max-width: 100%; max-height: 100%;"
+           class="table-responsive" >
+        <table class="table table-bordered table-fixed" >
+          <thead>
+          <tr>
+            <th>{{file_name}} </th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr>
+            <td>
+              <pre style=""> {{raw_data}} </pre>
+
+
+
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
+
+
+<ng-template #ScheduleTemplate >
+  <div class="modal-header">
+    <h4 class="modal-title pull-left" style="font-size: 19px">
+      <i class="fa fa-calendar " aria-hidden="true"></i>
+      Schedule Loader</h4>
+    <button type="button" class="close pull-right" (click)="hideModal()"
+            aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <form (ngSubmit)="applySchedule()" class="form-horizontal" >
+
+    <div class="modal-body" style="overflow-y: auto;padding-top: 30px !important; padding-left: 60px !important; max-height: 400px;">
+      <div class="form-group col-sm-11">
+        <label class="control-label" style="font-size: 16px; ">
+          Schedule Frequency
+        </label>
+        <div>
+          <label class="radio-inline"
+                 style="display: inline-block; width: 80px; margin-left: 5px;"> <input
+            type="radio" value="None" name="radiobtn" [(ngModel)]="schedule_frequency"   (change)="ChangeFrequency()"
+          >None
+          </label>
+          <label class="radio-inline"
+                 style="display: inline-block;width: 80px; margin-left: 5px;"> <input
+            type="radio" value="Once" name="radiobtn" [(ngModel)]="schedule_frequency"   (change)="ChangeFrequency()"
+          >Once
+          </label>
+          <label class="radio-inline"
+                 style="display: inline-block; width: 80px; margin-left: 5px;"> <input
+            type="radio" value="Minutely" name="radiobtn" [(ngModel)]="schedule_frequency"   (change)="ChangeFrequency()"
+          >Minutely
+          </label>
+          <label class="radio-inline"
+                 style="display: inline-block; width: 80px; margin-left: 5px;"> <input
+            type="radio" value="Hourly" name="radiobtn" [(ngModel)]="schedule_frequency"   (change)="ChangeFrequency()"
+          >Hourly
+          </label>
+          <label class="radio-inline"
+                 style="display: inline-block; width: 80px; margin-left: 5px;"> <input
+            type="radio" value="Daily" name="radiobtn" [(ngModel)]="schedule_frequency"   (change)="ChangeFrequency()"
+          >Daily
+          </label>
+          <label class="radio-inline"
+                 style="display: inline-block;width: 80px; margin-left: 5px;"> <input
+            type="radio" value="Weekly" name="radiobtn" [(ngModel)]="schedule_frequency"   (change)="ChangeFrequency()"
+          >Weekly
+          </label>
+          <label class="radio-inline"
+                 style="display: inline-block; width: 80px; margin-left: 5px;"> <input
+            type="radio" value="Monthly" name="radiobtn" [(ngModel)]="schedule_frequency"   (change)="ChangeFrequency()"
+          >Monthly
+          </label>
+          <label class="radio-inline"
+                 style="display: inline-block; width: 80px; margin-left: 5px;"> <input
+            type="radio" value="Yearly" name="radiobtn" [(ngModel)]="schedule_frequency"   (change)="ChangeFrequency()"
+          >Yearly
+          </label>
+        </div>
+
+      </div>
+
+      <div *ngIf="schedule_frequency=='Once'||schedule_frequency=='Minutely'||schedule_frequency=='Hourly'||schedule_frequency=='Daily'||schedule_frequency=='Weekly'||schedule_frequency=='Monthly'||schedule_frequency=='Yearly'"
+           class="form-group " id="start-time-options">
+        <div class="col-sm-4">
+          <label class="control-label" for="loader_start_date">Starts On</label>
+          <input class="form-control"  type="date"  [(ngModel)]="current_date " id="loader_start_date" name="loader_start_date">
+        </div>
+        <div class="col-sm-4">
+          <label class="control-label" for="loader_start_time">Time</label>
+          <input class="form-control" [(ngModel)]="current_time" type="time" name="loader_start_time" id="loader_start_time"   (click)="open()"  >
+        </div>
+        <div class="col-sm-4">
+          <label class="control-label" for="loader_time_zone">Time Zone</label>
+          <select class="form-control custom-select" name="loader_time_zone" id="loader_time_zone" [(ngModel)]="current_timezone" (change)="changeDate()">
+            <option *ngFor="let item of optionsTimezoneData" [ngValue]="item" >{{item}}</option>
+          </select>
+        </div>
+      </div>
+
+      <div *ngIf="schedule_frequency=='Minutely'||schedule_frequency=='Hourly'||schedule_frequency=='Daily'||schedule_frequency=='Monthly'" class="form-inline " id="periodic-option" style="display: block;margin-top: 30px !important;">
+        <hr>
+
+        <p class="form-control-static"><strong>Runs Every</strong>
+          <input class="form-control form-inline " [(ngModel)]="frequency" size="5" minimum="1" style="width:80px;margin-right: 20px !important;" type="number" value="1" name="loader[schedule_period]" id="loader_schedule_period">
+          <strong class="period-type"> {{frequencyUnit}} </strong></p>
+      </div>
+      <div *ngIf="schedule_frequency=='Minutely'"
+           class="form-group" style="display: block;">
+        <hr>
+
+        <div class="col-sm-11">
+          <label class="control-label" >On Hours of Day</label> <br>
+          <ng-container *ngFor="let hour of hourData">
+            <label class="checkbox-inline"
+                   style="margin-left: 10px;width:45px" for="checkbox_hour_{{hour}}">
+              <input  (change)="changeSelectHours($event)" [checked]="getCheckHours(hour)" [value]="hour" type="checkbox" id="checkbox_hour_{{hour}}" name="loader[hours_of_day]" >{{hour}}</label>
+          </ng-container>
+        </div>
+
+      </div>
+
+      <div *ngIf="schedule_frequency=='Yearly'"
+           class="form-group" id="month-of-year-option" style="display: block;">
+        <hr>
+
+        <div class="col-sm-11">
+          <label class="control-label" >On Months of Year</label> <br>
+          <ng-container *ngFor="let month of monthData">
+            <label data-value="january" class="checkbox-inline"
+                   style="margin-left: 10px;width:100px" for="loader_months_of_year_{{month.value}}">
+              <input  (change)="changeMonthOfYear($event)" [checked]="getCheckMonth(month.value)" type="checkbox" [value]="month.value" name="loader[months_of_year][]" id="loader_months_of_year_{{month.value}}">
+              {{month.key}}
+            </label>
+          </ng-container>
+
+        </div>
+
+      </div>
+
+      <div *ngIf="schedule_frequency=='Monthly'||schedule_frequency=='Hourly'||schedule_frequency=='Weekly'||schedule_frequency=='Yearly'" class="form-group m-t" id="day-of-week-option" style="display: block;">
+        <hr>
+        <div class="col-sm-11 ">
+          <label class="control-label" >On Days of Week</label> <br>
+          <ng-container *ngFor="let day of dayData">
+            <label data-value="sunday" class="checkbox-inline" style="margin-left: 10px;width:100px" for="loader_days_of_week_{{day}}">
+              <input (change)="changeDayOfWeek($event)" type="checkbox" [checked]="getCheckDaysOfWeek(day)" [value]="day" name="loader[days_of_week]" id="loader_days_of_week_{{day}}">
+              {{day}}
+            </label>
+
+          </ng-container>
+
+
+        </div>
+      </div>
+
+      <div *ngIf="schedule_frequency=='Monthly'||schedule_frequency=='Yearly'"
+           class="form-group m-t-md" id="day-of-month-option" style="display: block;">
+        <hr>
+        <label class="col-sm-4" for="loader_day_of_month">On Day of Month</label>
+        <div class="col-sm-4">
+          <select class="form-control col-sm-9" name="loader_day_of_month" id="loader_day_of_month" (change)="changeDayOfMonth()" [(ngModel)]="days_of_month">
+            <option *ngFor="let item of optionsDayData" [ngValue]="item" >{{item}}</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="modal-footer">
+      <div class="text-right">
+
+        <button type="button" class="btn btn-default" (click)="hideModal()" >
+          Cancel</button>
+
+        <button type="submit"  class="btn btn-success"><span [ngClass]="isSavingSchedule ? 'loading-button':''" >
+            <i [ngClass]="isSavingSchedule ? 'fa fa-gear fa-spin':'fa '"></i>Apply Schedule</span></button>
+      </div>
+    </div>
+
+  </form>
+
+</ng-template>
+
+</section>
+</article>

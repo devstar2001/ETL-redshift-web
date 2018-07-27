@@ -1,0 +1,15 @@
+<form #userForm="ngForm" (submit)="onSubmit()" *ngIf="active">
+	{{userForm.valid}}
+	<div class="form-group">
+		<input type="text" class="form-control" name="name" required
+			[(ngModel)]="newUser.username" #name="ngModel"> <span
+			class="help-block" *ngIf="name.invalid && name.touched">Name
+			is required</span>
+	</div>
+	<div class="form-group">
+		<input type="text" class="form-control" name="username" required
+			[(ngModel)]="newUser.username" #username="ngModel">
+	</div>
+	<button type="submit" class="btn btn-lg btn-block btn-primary"
+		[disabled]="userForm.invalid">Create User</button>
+</form>

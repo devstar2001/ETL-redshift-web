@@ -1,0 +1,61 @@
+<article id="main">
+
+  <section class="wrapper style4 container" >
+    <h3 style="margin-top: 0px;margin-left: 10px"><span class="icon fa-laptop"></span><strong>&nbsp;Targets</strong>
+      <a [routerLink]="['/targets/add']"
+         class="btn btn-default pull-right" style="margin-right: 10px">Add Target</a>
+    </h3>
+
+<div class="row main-div" >
+
+  <table class="table table-bordered">
+    <table class="table" >
+      <thead>
+      <tr>
+        <th>Target Name</th>
+        <th>Database Name</th>
+        <th>Host</th>
+        <th>Created</th>
+        <th>Actions</th>
+      </tr>
+      </thead>
+      <tbody *ngIf="targetist">
+      <tr *ngFor="let file of targetist">
+        <td>{{file.target_name}}</td>
+        <td>{{file.name}}</td>
+        <td>{{file.host}}</td>
+        <td>{{file.created_date | date:'yyyy-MM-dd HH:mm:ss Z' }}</td>
+        <td style="width: 135px" class="btn-group"><a
+          class="btn btn-default" title="Edit"
+          [routerLink]="['/targets/edit', file.id]"><i
+          class="fa fa-pencil-square-o" aria-hidden="true"></i></a> <a
+          class="btn btn-default" title="Delete"
+          (click)="deleteTarget(file.id)"><i class="fa fa-trash-o"
+                                             aria-hidden="true"></i></a> <a class="btn btn-default"
+                                                                            title="Test Connection" (click)="testConnection(file.id)"><i
+          class="fa fa-tachometer" aria-hidden="true"></i></a></td>
+      </tr>
+      </tbody>
+      <tbody *ngIf="!targetist && !loadingData">
+      <tr>
+        <th colspan="2">No Data</th>
+      </tr>
+      </tbody>
+      <tbody *ngIf="!targetist && loadingData">
+      <tr>
+        <th colspan="4">
+          <h3 style="text-align: center;color: #eea236">Loading</h3>
+          <div class="spinner">
+            <div class="bounce1"></div>
+            <div class="bounce2"></div>
+            <div class="bounce3"></div>
+          </div>
+        </th>
+      </tr>
+      </tbody>
+    </table>
+  </table>
+
+</div>
+  </section>
+</article>

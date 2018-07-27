@@ -1,0 +1,884 @@
+<article id="main">
+  <section class="wrapper style4 container">
+    <h3 style="margin-top: 0px"><span class="icon fa-laptop"></span><strong>&nbsp;Loader Settings</strong></h3>
+<div class="row">
+  <nav class="navbar navbar-default navbar-inverse"
+       style="margin-bottom: 0px;">
+    <div class="container-fluid">
+      <div class="wizard-links text-center"
+           id="bs-example-navbar-collapse-1">
+        <a id="wizard-previous-btn"
+           class="btn navbar-btn btn-sm btn-primary navbar-left"
+           [routerLink]="['/loader/settings']">BACK</a> <a class="wizard-link"
+                                                           [routerLink]="['/loader/settings']"><i
+        class="fa fa-caret-right " aria-hidden="true"></i> Settings</a> / <a
+        class="wizard-link active"><i class="fa fa-caret-right "
+                                      aria-hidden="true"></i> Transform</a> / <a
+        class="wizard-link   " [routerLink]="['/loader/summary']"><i
+        class="fa fa-caret-right " aria-hidden="true"></i> Summary</a>
+        <button id="wizard-next-btn"   [routerLink]="['/loader/summary']"
+                style="padding: 5px 10px; font-size: 12px; line-height: 1.5; border-radius: 3px; background: #337ab7;" [disabled]="isLoading||isSaving"
+                class="navbar-right btn navbar-btn btn-sm btn-primary">NEXT</button>
+      </div>
+    </div>
+  </nav>
+</div>
+<hr>
+
+<div class="row">
+  <div class="col-md-3">
+    <div class="ibox float-e-margins">
+      <div class="ibox-content">
+        <div class="no-transforms" style="">
+          <p>Apply transformations by using the transformations drop down
+            menu on each column.</p>
+          <p>You can also change a columns data type by using the data
+            type drop down on left of each column.</p>
+          <div class="row">
+            <div class="col-md-6" align="center">
+              <button (click)="removeTransformSettings()" class="btn navbar-btn btn-sm btn-primary" [disabled]="isLoading"
+                      style=" font-size: 12px; line-height: 1.5; border-radius: 3px; background: #337ab7;"
+              >CLEAR</button></div>
+            <div class="col-md-6" align="center">
+              <button  class="btn navbar-btn btn-sm btn-primary" [disabled]="isLoading"
+                       (click)="saveTransform()" style="padding: 5px 10px; font-size: 12px; line-height: 1.5; border-radius: 3px; background: #D95DB0;"
+              >
+                <span [ngClass]="isSaving ? 'loading-button':''" >
+              <i [ngClass]="isSaving ? 'fa fa-gear fa-spin':'fa '"></i>
+                  &nbsp;SAVE&nbsp;</span></button>
+            </div>
+
+          </div>
+
+          <div class="row">
+            <label class="radio-inline"
+                   style="margin-left:10%; display: inline-block; padding-top: 0px;">
+              <input
+                type="radio" value="s1" name="radiobtn" (change)="handle1()"
+                [(ngModel)]="key_type">Add primary key "de_id"
+            </label>
+          </div>
+          <p></p>
+          <div class="row" >
+            <label class="radio-inline"
+                   style="margin-left:10%; display: inline-block; padding-top: 0px;">
+              <input
+                type="radio" value="s2" name="radiobtn" (change)="handle2()"
+                [(ngModel)]="key_type">Select primary keys
+            </label>
+          </div>
+          <div class="row" align="center" *ngIf="!disableMultiSelect">
+
+            <angular2-multiselect [data]="dropdownList" [(ngModel)]="pk_cols"
+                                  style="margin-left: 32px; width: 80%; float: left;"
+                                  [settings]="dropdownSettings"
+                                  (onSelect)="onItemSelect($event)"
+                                  (onDeSelect)="OnItemDeSelect($event)"
+                                  (onDeSelectAll)="onDeSelectAll($event)">
+
+            </angular2-multiselect>
+          </div>
+          <p></p>
+          <div class="row" >
+            <label class="radio-inline"
+                   style="margin-left:10%; display: inline-block; padding-top: 0px;">
+              <input
+                type="radio" value="s3" name="radiobtn" (change)="handle3()"
+                [(ngModel)]="key_type">No primary key
+            </label>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-9">
+    <div style="max-width: 100%; max-height: 500px;"
+         class="row table-responsive" *ngIf="csvData">
+      <table class="table table-bordered table-fixed">
+        <thead>
+        <tr>
+          <ng-container *ngFor="let loaderSampleHeader of headersData">
+            <th *ngIf="!loaderSampleHeader.is_deleted">
+              <div class="btn-group">
+                <div class="btn-group" dropdown>
+                  <button dropdownToggle  type="button" class="btn btn-default dropdown-toggle"
+                          data-toggle="dropdown">
+                    <i class="fa {{fontIconArray[loaderSampleHeader.data_type]}}">
+                      {{fontTextIconArray[loaderSampleHeader.data_type]}}</i>
+                  </button>
+                  <ul *dropdownMenu class="dropdown-menu" role="menu">
+                    <li  role="menuitem" *ngFor="let col of dataTypeArray">
+                      <a (click)="changeDataType(col, loaderSampleHeader, dateTypeTemplate,dateTimeTypeTemplate)">
+                        <i class="fa {{fontIconArray[col]}}">{{fontTextIconArray[col]}}</i>
+                        <span class="menu-label"> {{col}}</span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+                <button type="button" class="btn btn-default">
+                  {{loaderSampleHeader.col_name}}</button>
+                <div class="btn-group" dropdown [autoClose]="true" container="body">
+                  <button dropdownToggle type="button" class="btn btn-default dropdown-toggle"
+                          data-toggle="dropdown">
+                    <span class="caret"></span>
+                  </button>
+
+                  <ul *dropdownMenu class="dropdown-menu" role="menu" >
+                    <li role="menuitem" class="dropdown-header" style="color: #b78a92">GENERAL</li>
+                    <li role="menuitem" >
+                      <a
+                      (click)="openRenameModal(loaderSampleHeader, renameTemplate)">
+                      <span class="menu-label">Rename Column...</span>
+                      </a></li>
+                    <li role="menuitem" >
+                      <a (click)="deleteColumnMethod(loaderSampleHeader)">
+                        <span class="menu-label">Delete Column</span>
+                      </a>
+                    </li>
+                    <li role="menuitem" >
+                      <a (click)="openFindAndReplaceModal(loaderSampleHeader, findAndReplaceTemplate)">
+                        <span class="menu-label">Find and Replace...</span>
+                      </a>
+                    </li>
+                    <li role="menuitem"  class="dropdown-header" style="color: #b78a92">EXTRACT STRING</li>
+                    <li role="menuitem" >
+                      <a (click)="extractTextBetweenModal(loaderSampleHeader, extractTextBetweenTemplate)">
+                      <span class="menu-label">Extract Text Between...</span>
+                      </a>
+                    </li>
+                    <li role="menuitem" >
+                      <a
+                      (click)="extractRegexModal(loaderSampleHeader, extractRegexTemplate)">
+                      <span class="menu-label">Extract Pattern...</span>
+                    </a>
+                    </li>
+                    <li role="menuitem" dropdown  triggers="mouseover" placement="right" container="body">
+                      <a dropdownToggle class="dropdown-item dropdown-toggle"
+                         (click)="false" style="color: #b78a92">TEXT TRANSFORMS <span class="caret"></span></a>
+                      <ul *dropdownMenu class="dropdown-menu" role="menu">
+                        <li role="menuitem">
+                          <a class="dropdown-item" (click)="textTransformMethod(loaderSampleHeader, 'uppercase')">
+                          <span class="menu-label">UPPERCASE</span>
+                          </a>
+                        </li>
+                        <li role="menuitem">
+                          <a class="dropdown-item" (click)="textTransformMethod(loaderSampleHeader, 'lowercase')">
+                          <span class="menu-label">Lowercase</span>
+                          </a>
+                        </li>
+                        <li role="menuitem">
+                          <a class="dropdown-item" (click)="textTransformMethod(loaderSampleHeader, 'capitalize')">
+                            <span class="menu-label">Capitalize words</span>
+                          </a>
+                        </li>
+                        <li role="menuitem"><a  class="dropdown-item"
+                          (click)="textTransformMethod(loaderSampleHeader, 'titleize')">
+                          <span class="menu-label">Titleize Words</span>
+                        </a></li>
+                        <li role="menuitem"><a class="dropdown-item"
+                          (click)="textTransformMethod(loaderSampleHeader, 'snake_case')">
+                          <span class="menu-label">Snake_case_words</span>
+                        </a></li>
+                        <li role="menuitem"><a class="dropdown-item"
+                          (click)="textTransformMethod(loaderSampleHeader, 'trim')">
+                          <span class="menu-label">Trim</span>
+                        </a></li>
+                      </ul>
+                    </li>
+                    <li role="menuitem" dropdown triggers="mouseover" placement="right" container="body">
+                      <a dropdownToggle class="dropdown-item dropdown-toggle"
+                         (click)="false" style="color: #b78a92">MATH FUNCTIONS
+                         <span class="caret"></span></a>
+                      <ul *dropdownMenu class="dropdown-menu" role="menu">
+                        <li role="menuitem"><a class="dropdown-item"
+                          (click)="mathModal(loaderSampleHeader, mathAddTemplate)">
+                          <span class="menu-label">Add ( + )</span>
+                        </a></li>
+                        <li role="menuitem"><a class="dropdown-item"
+                          (click)="mathModal(loaderSampleHeader, mathSubtractionTemplate)">
+                          <span class="menu-label">Subtraction ( - )</span>
+                        </a></li>
+                        <li role="menuitem"><a class="dropdown-item"
+                          (click)="mathModal(loaderSampleHeader, mathMultiplyTemplate)">
+                          <span class="menu-label">Multiply ( &times; )</span>
+                        </a></li>
+                        <li role="menuitem"><a class="dropdown-item"
+                          (click)="mathModal(loaderSampleHeader, mathDivideTemplate)">
+                          <span class="menu-label">Divide ( / )</span>
+                        </a></li>
+                        <li role="menuitem"><a class="dropdown-item"
+                          (click)="mathModal(loaderSampleHeader, mathPercentTemplate)">
+                          <span class="menu-label">Percent ( % )</span>
+                        </a></li>
+                        <li role="menuitem"><a class="dropdown-item"
+                          (click)="mathModal(loaderSampleHeader, mathLogTemplate)">
+                          <span class="menu-label">Log <b><sub>x</sub> <sup>y</sup></b></span>
+                        </a></li>
+                        <li role="menuitem"><a class="dropdown-item"
+                          (click)="mathModal(loaderSampleHeader, mathExpTemplate)">
+                          <span class="menu-label">Exp ( x )</span>
+                        </a></li>
+                      </ul></li>
+
+                  </ul>
+                </div>
+              </div>
+            </th>
+          </ng-container>
+          <th ><div style="width: 300px" align="center">--- END ---</div></th>
+        </tr>
+
+        </thead>
+        <tbody>
+        <tr *ngFor="let loaderSampleRow of csvData">
+          <ng-container
+            *ngFor="let loaderSampleHeader of headersData;let i = index">
+            <ng-container *ngIf="!loaderSampleHeader.is_deleted">
+              <td>{{ loaderSampleRow[i] }}</td>
+            </ng-container>
+
+          </ng-container>
+          <td> <div align="center">---***---</div></td>
+        </tr>
+
+        </tbody>
+      </table>
+    </div>
+    <div class="row" *ngIf="!csvData" style="vertical-align: middle">
+      <h3 style="text-align: center; color: #eea236">LOADING</h3>
+      <div class="spinner">
+        <div class="bounce1"></div>
+        <div class="bounce2"></div>
+        <div class="bounce3"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<ng-template #renameTemplate >
+  <form id="rename_form" (ngSubmit)="renameColumnMethod(modalObject.data)">
+    <div class="modal-header">
+      <h4 class="modal-title pull-left">Rename this column :
+        {{modalObject.data.col_name}}</h4>
+      <button type="button" class="close pull-right" (click)="hideModal()"
+              aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label for="input_col_name" class="control-label">Enter New
+          Column Name: <span class="req">*</span>
+        </label> <input type="text" class="form-control" [(ngModel)]="input_first"
+                        id="input_col_name" name="input_col_name" required>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div class="text-right">
+        <button type="submit" class="btn btn-success">Apply</button>
+        <button type="button" class="btn btn-default" (click)="hideModal()">
+          Cancel</button>
+      </div>
+    </div>
+  </form>
+</ng-template>
+
+<ng-template #findAndReplaceTemplate >
+
+  <form (ngSubmit)="findAndReplaceMethod(modalObject.data)" >
+    <div class="modal-header">
+      <h4 class="modal-title pull-left">Find and Replace:
+        {{modalObject.data.col_name}}</h4>
+      <button type="button" class="close pull-right" (click)="hideModal()"
+              aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label for="input_find" class="control-label">Find: <span
+          class="req">*</span></label> <input type="text" class="form-control" autofocus="autofocus"
+                                              [(ngModel)]="input_first" id="input_find" name="input_first"
+                                              required> <small class="form-text ">Enter
+        search text.</small>
+      </div>
+      <div class="form-group">
+        <label for="input_replace" class="control-label">Replace: </label> <input
+        type="text" class="form-control" [(ngModel)]="input_second" autofocus="autofocus"
+        id="input_replace" name="input_second"> <small
+        class="form-text ">Replacement text when a match is found.</small>
+      </div>
+      <div class="preview">
+        <h5>Preview</h5>
+        <div class="preview-content"
+             style="max-height: 123px; overflow: scroll; font-size: 11px;">
+          <table class="table table-bordered table-fixed">
+            <thead>
+            <tr>
+              <th>{{modalObject.data.col_name}}</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let loaderSampleRow of modalObject.csvData">
+              <td>{{
+                previewFindAndReplace(loaderSampleRow[modalObject.data.orig_index],
+                input_first, input_second) }}</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div class="text-right">
+        <button type="submit" class="btn btn-success">Apply</button>
+        <button type="button" class="btn btn-default" (click)="hideModal()">
+          Cancel</button>
+      </div>
+    </div>
+  </form>
+
+</ng-template>
+
+
+<ng-template #extractTextBetweenTemplate >
+  <form (ngSubmit)="extractTextBetweenMethod(modalObject.data)">
+    <div class="modal-header">
+      <h4 class="modal-title pull-left">Extract Text Between:
+        {{modalObject.data.col_name}}</h4>
+      <button type="button" class="close pull-right" (click)="hideModal()"
+              aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label for="input_begin" class="control-label">Begin <span
+          class="req">*</span></label> <input type="text" class="form-control" autofocus="autofocus"
+                                              [(ngModel)]="input_first" id="input_begin" name="input_begin"
+                                              required> <small class="form-text ">Starting
+        character sequence</small>
+      </div>
+      <div class="form-group">
+        <label for="input_end" class="control-label">End: <span
+          class="req">*</span></label> <input type="text" class="form-control"
+                                              [(ngModel)]="input_second" id="input_end" name="input_end"
+                                              required> <small class="form-text ">Ending
+        character sequence</small>
+      </div>
+      <div class="">
+        <label class="radio-inline"> <input type="radio" class=""
+                                            [(ngModel)]="input_third" id="input_first_occurrence" name="input_first_occurrence"
+                                            value=0> First Occurrence
+        </label> <label class="radio-inline"> <input type="radio" class=""
+                                                     [(ngModel)]="input_third" id="input_last_occurrence" name="input_last_occurrence"
+                                                     value=1> Last Occurrence
+      </label>
+      </div>
+      <div class="preview">
+        <h5>Preview</h5>
+        <div class="preview-content"
+             style="max-height: 123px; overflow: scroll; font-size: 11px;">
+          <table class="table table-bordered table-fixed">
+            <thead>
+            <tr>
+              <th>
+                {{modalObject.data.col_name}}
+              </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let loaderSampleRow of modalObject.csvData">
+              <td>{{
+                previewExtractTextBetween(loaderSampleRow[modalObject.data.orig_index],
+                input_first, input_second, input_third) }}</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div class="text-right">
+        <button type="submit" class="btn btn-success">Apply</button>
+        <button type="button" class="btn btn-default" (click)="hideModal()">
+          Cancel</button>
+      </div>
+    </div>
+  </form>
+</ng-template>
+
+
+
+<ng-template #extractRegexTemplate>
+  <form (ngSubmit)="extractRegexMethod(modalObject.data)">
+    <div class="modal-header">
+      <h4 class="modal-title pull-left">Extract Pattern:
+        {{modalObject.data.col_name}}</h4>
+      <button type="button" class="close pull-right" (click)="hideModal()"
+              aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label for="input_first" class="control-label">Pattern <span
+          class="req">*</span></label> <input type="text" class="form-control"
+                                              [(ngModel)]="input_first" id="input_first" name="input_first"
+                                              required> <small class="form-text ">Regular
+        Expression String</small>
+      </div>
+      <div class="preview">
+        <h5>Preview</h5>
+        <div class="preview-content"
+             style="max-height: 123px; overflow: scroll; font-size: 11px;">
+          <table class="table table-bordered table-fixed">
+            <thead>
+            <tr>
+              <th>
+                {{modalObject.data.col_name}}
+              </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let loaderSampleRow of modalObject.csvData">
+              <td>{{
+                previewExtractRegex(loaderSampleRow[modalObject.data.orig_index],
+                input_first, input_second, input_third) }}</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div class="text-right">
+        <button type="submit" class="btn btn-success">Apply</button>
+        <button type="button" class="btn btn-default" (click)="hideModal()">
+          Cancel</button>
+      </div>
+    </div>
+  </form>
+</ng-template>
+<ng-template #dateTypeTemplate>
+  <form (ngSubmit)="dateTypeMethod(modalObject.data)">
+    <div class="modal-header">
+      <h4 class="modal-title pull-left">Select Date Type:
+        {{modalObject.data.col_name}}</h4>
+      <button type="button" class="close pull-right" (click)="hideModal()"
+              aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label for="input_first" class="control-label">Date Type List: <span class="req">*</span>
+        </label>
+        <select name="datetype"
+                [(ngModel)]="modalObject.data.date_type" class="form-control"
+                #datetype="ngModel">
+          <option *ngFor="let item of DataTypeList" [ngValue]="item" >{{item}}</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div class="text-right">
+        <button type="submit" class="btn btn-success">Apply</button>
+        <button type="button" class="btn btn-default" (click)="hideModal()">
+          Cancel</button>
+      </div>
+    </div>
+  </form>
+</ng-template>
+<ng-template #dateTimeTypeTemplate>
+  <form (ngSubmit)="dateTypeMethod(modalObject.data)">
+    <div class="modal-header">
+      <h4 class="modal-title pull-left">Select DateTime Type:
+        {{modalObject.data.col_name}}</h4>
+      <button type="button" class="close pull-right" (click)="hideModal()"
+              aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label for="input_first" class="control-label">DateTime List: <span class="req">*</span>
+        </label>
+        <select name="timetype"
+                [(ngModel)]="modalObject.data.time_type" class="form-control"
+                #timetype="ngModel">
+          <option *ngFor="let item of DataTimeTypeList" [ngValue]="item" >{{item}}</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div class="text-right">
+        <button type="submit" class="btn btn-success">Apply</button>
+        <button type="button" class="btn btn-default" (click)="hideModal()">
+          Cancel</button>
+      </div>
+    </div>
+  </form>
+</ng-template>
+
+<ng-template #mathAddTemplate>
+  <form (ngSubmit)="mathAddMethod(modalObject.data)">
+    <div class="modal-header">
+      <h4 class="modal-title pull-left">Add (x + y): <br>
+      </h4>
+      <button type="button" class="close pull-right" (click)="hideModal()"
+              aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label for="input_first" class="control-label">X: {{modalObject.data.col_name}}</label>
+      </div>
+      <div class="form-group">
+        <label for="input_y" class="control-label">Y: <span
+          class="req">*</span></label> <input type="text" class="form-control"
+                                              [(ngModel)]="input_second" id="input_y" name="input_y"
+                                              required> <small class="form-text "></small>
+      </div>
+
+      <div class="preview">
+        <h5>Preview</h5>
+        <div class="preview-content"
+             style="max-height: 123px; overflow: scroll; font-size: 11px;">
+          <table class="table table-bordered table-fixed">
+            <thead>
+            <tr>
+              <th>
+                {{modalObject.data.col_name}}
+              </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let loaderSampleRow of modalObject.csvData">
+              <td>{{
+                previewMathAdd(loaderSampleRow[modalObject.data.orig_index], input_second) }}</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div class="text-right">
+        <button type="submit" class="btn btn-success">Apply</button>
+        <button type="button" class="btn btn-default" (click)="hideModal()">
+          Cancel</button>
+      </div>
+    </div>
+  </form>
+</ng-template>
+<ng-template #mathSubtractionTemplate>
+  <form (ngSubmit)="mathSubtractionMethod(modalObject.data)">
+    <div class="modal-header">
+      <h4 class="modal-title pull-left">Subtraction (x - y): <br>
+      </h4>
+      <button type="button" class="close pull-right" (click)="hideModal()"
+              aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label for="input_first" class="control-label">X: {{modalObject.data.col_name}}</label>
+      </div>
+      <div class="form-group">
+        <label for="input_second_y" class="control-label">Y: <span
+          class="req">*</span></label> <input type="text" class="form-control"
+                                              [(ngModel)]="input_second" id="input_second_y" name="input_second_y"
+                                              required> <small class="form-text "></small>
+      </div>
+
+      <div class="preview">
+        <h5>Preview</h5>
+        <div class="preview-content"
+             style="max-height: 123px; overflow: scroll; font-size: 11px;">
+          <table class="table table-bordered table-fixed">
+            <thead>
+            <tr>
+              <th>
+                {{modalObject.data.col_name}}
+              </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let loaderSampleRow of modalObject.csvData">
+              <td>{{
+                previewMathSubtraction(loaderSampleRow[modalObject.data.orig_index], input_second) }}</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div class="text-right">
+        <button type="submit" class="btn btn-success">Apply</button>
+        <button type="button" class="btn btn-default" (click)="hideModal()">
+          Cancel</button>
+      </div>
+    </div>
+  </form>
+</ng-template>
+
+<ng-template #mathMultiplyTemplate>
+  <form (ngSubmit)="mathMultiplyMethod(modalObject.data)">
+    <div class="modal-header">
+      <h4 class="modal-title pull-left">Multiply (x &times; y): <br>
+      </h4>
+      <button type="button" class="close pull-right" (click)="hideModal()"
+              aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label for="input_first" class="control-label">X: {{modalObject.data.col_name}}</label>
+      </div>
+      <div class="form-group">
+        <label for="input_multiply_y" class="control-label">Y: <span
+          class="req">*</span></label> <input type="text" class="form-control"
+                                              [(ngModel)]="input_second" id="input_multiply_y" name="input_multiply_y"
+                                              required> <small class="form-text "></small>
+      </div>
+
+      <div class="preview">
+        <h5>Preview</h5>
+        <div class="preview-content"
+             style="max-height: 123px; overflow: scroll; font-size: 11px;">
+          <table class="table table-bordered table-fixed">
+            <thead>
+            <tr>
+              <th>
+                {{modalObject.data.col_name}}
+              </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let loaderSampleRow of modalObject.csvData">
+              <td>{{
+                previewMathMultiply(loaderSampleRow[modalObject.data.orig_index], input_second) }}</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div class="text-right">
+        <button type="submit" class="btn btn-success">Apply</button>
+        <button type="button" class="btn btn-default" (click)="hideModal()">
+          Cancel</button>
+      </div>
+    </div>
+  </form>
+</ng-template>
+
+<ng-template #mathDivideTemplate>
+  <form (ngSubmit)="mathDivideMethod(modalObject.data)">
+    <div class="modal-header">
+      <h4 class="modal-title pull-left">Divide (x / y): <br>
+      </h4>
+      <button type="button" class="close pull-right" (click)="hideModal()"
+              aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label for="input_first" class="control-label">X: {{modalObject.data.col_name}}</label>
+      </div>
+      <div class="form-group">
+        <label for="input_div_y" class="control-label">Y: <span
+          class="req">*</span></label> <input type="text" class="form-control"
+                                              [(ngModel)]="input_second" id="input_div_y" name="input_div_y"
+                                              required> <small class="form-text "></small>
+      </div>
+
+      <div class="preview">
+        <h5>Preview</h5>
+        <div class="preview-content"
+             style="max-height: 123px; overflow: scroll; font-size: 11px;">
+          <table class="table table-bordered table-fixed">
+            <thead>
+            <tr>
+              <th>
+                {{modalObject.data.col_name}}
+              </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let loaderSampleRow of modalObject.csvData">
+              <td>{{
+                previewMathDivide(loaderSampleRow[modalObject.data.orig_index], input_second) }}</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div class="text-right">
+        <button type="submit" class="btn btn-success">Apply</button>
+        <button type="button" class="btn btn-default" (click)="hideModal()">
+          Cancel</button>
+      </div>
+    </div>
+  </form>
+</ng-template>
+<ng-template #mathPercentTemplate>
+  <form (ngSubmit)="mathPercentMethod(modalObject.data)">
+    <div class="modal-header">
+      <h4 class="modal-title pull-left">Percent (x / 100): <br>
+      </h4>
+      <button type="button" class="close pull-right" (click)="hideModal()"
+              aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label for="input_first" class="control-label">X: {{modalObject.data.col_name}}</label>
+      </div>
+      <div class="form-group">
+        <label for="input_second" class="control-label">Y: <span
+          class="req">100</span></label>
+      </div>
+
+      <div class="preview">
+        <h5>Preview</h5>
+        <div class="preview-content"
+             style="max-height: 123px; overflow: scroll; font-size: 11px;">
+          <table class="table table-bordered table-fixed">
+            <thead>
+            <tr>
+              <th>
+                {{modalObject.data.col_name}}
+              </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let loaderSampleRow of modalObject.csvData">
+              <td>{{
+                previewMathPercent(loaderSampleRow[modalObject.data.orig_index]) }}</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div class="text-right">
+        <button type="submit" class="btn btn-success">Apply</button>
+        <button type="button" class="btn btn-default" (click)="hideModal()">
+          Cancel</button>
+      </div>
+    </div>
+  </form>
+</ng-template>
+<ng-template #mathLogTemplate>
+  <form (ngSubmit)="mathLogMethod(modalObject.data)">
+    <div class="modal-header">
+      <h4 class="modal-title pull-left">Log <sub> x</sub> <sup> y </sup> <br>
+      </h4>
+      <button type="button" class="close pull-right" (click)="hideModal()"
+              aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label for="input_first" class="control-label">X: {{modalObject.data.col_name}}</label>
+      </div>
+      <div class="form-group">
+        <label for="input_second" class="control-label">Y: <span
+          class="req">*</span></label> <input type="text" class="form-control" value="100"
+                                              [(ngModel)]="input_second" id="input_second" name="input_second"
+                                              required> <small class="form-text "></small>
+      </div>
+
+      <div class="preview">
+        <h5>Preview</h5>
+        <div class="preview-content"
+             style="max-height: 123px; overflow: scroll; font-size: 11px;">
+          <table class="table table-bordered table-fixed">
+            <thead>
+            <tr>
+              <th>
+                {{modalObject.data.col_name}}
+              </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let loaderSampleRow of modalObject.csvData">
+              <td>{{
+                previewMathLog(loaderSampleRow[modalObject.data.orig_index], input_second) }}</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div class="text-right">
+        <button type="submit" class="btn btn-success">Apply</button>
+        <button type="button" class="btn btn-default" (click)="hideModal()">
+          Cancel</button>
+      </div>
+    </div>
+  </form>
+</ng-template>
+<ng-template #mathExpTemplate>
+  <form (ngSubmit)="mathExpMethod(modalObject.data)">
+    <div class="modal-header">
+      <h4 class="modal-title pull-left">Exp (x): <br>
+      </h4>
+      <button type="button" class="close pull-right" (click)="hideModal()"
+              aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label for="input_first" class="control-label">X: {{modalObject.data.col_name}}</label>
+      </div>
+
+
+      <div class="preview">
+        <h5>Preview</h5>
+        <div class="preview-content"
+             style="max-height: 123px; overflow: scroll; font-size: 11px;">
+          <table class="table table-bordered table-fixed">
+            <thead>
+            <tr>
+              <th>
+                {{modalObject.data.col_name}}
+              </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let loaderSampleRow of modalObject.csvData">
+              <td>{{
+                previewMathExp(loaderSampleRow[modalObject.data.orig_index]) }}</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div class="text-right">
+        <button type="submit" class="btn btn-success">Apply</button>
+        <button type="button" class="btn btn-default" (click)="hideModal()">
+          Cancel</button>
+      </div>
+    </div>
+  </form>
+</ng-template>
+  </section>
+</article>

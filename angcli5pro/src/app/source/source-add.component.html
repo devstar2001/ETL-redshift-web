@@ -1,0 +1,88 @@
+<article id="main">
+
+  <section class="wrapper style4 container" style="color:#000303;background: none">
+    <div class="rounded-corner">
+      <div class="row">
+        <div class="col-xs-8">
+          <h2 class="page-title">
+            <i class="fa fa-cloud-upload " aria-hidden="true"></i> Upload Files
+          </h2>
+        </div>
+        <div class="col-xs-4 text-right" style="margin-top: 20px;">
+          <a class="btn btn-default" [routerLink]="['/sources']">Done</a>
+        </div>
+      </div>
+      <div class="">
+        <div ng2FileDrop [ngClass]="{'nv-file-over': hasBaseDropZoneOver}"
+             (fileOver)="fileOverBase($event)" [uploader]="uploader"
+             class="drop-box">
+          <label class="btn btn-default" style="margin: 140px auto;">
+            Choose Files
+            <input
+              accept=".csv, .txt, .pdf, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+              style="display: none" type="file" ng2FileSelect
+              [uploader]="uploader" multiple />
+            <input type="hidden" [value]="bucket" name="bucket" id="bucket">
+            <input type="hidden" [value]="source_path" name="source_path">
+          </label>
+        </div>
+      </div>
+      <div class="" ng-if="files">
+        <h4>File Status</h4>
+        <table class="table">
+          <thead>
+          <tr>
+            <th width="50%">Name</th>
+            <th>Size</th>
+            <th>Progress</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let item of uploader.queue">
+            <td><strong>{{ item?.file?.name }}</strong></td>
+            <td *ngIf="uploader.options.isHTML5" nowrap>{{
+              item?.file?.size/1024/1024 | number:'.2' }} MB</td>
+            <td *ngIf="uploader.options.isHTML5">
+              <div class="progress" style="margin-bottom: 0;">
+                <div class="progress-bar" role="progressbar"
+                     [ngStyle]="{ 'width': item.progress + '%' }"></div>
+              </div>
+            </td>
+            <td class="text-center"><span *ngIf="item.isSuccess"><i
+              class="glyphicon glyphicon-ok"></i></span> <span *ngIf="item.isCancel"><i
+              class="glyphicon glyphicon-ban-circle"></i></span> <span
+              *ngIf="item.isError"><i class="glyphicon glyphicon-remove"></i></span>
+            </td>
+            <td nowrap>
+              <button type="button" class="btn btn-success btn-xs"
+                      (click)="item.upload()"
+                      [disabled]="item.isReady || item.isUploading || item.isSuccess">
+                <span class="glyphicon glyphicon-upload"></span> Upload
+              </button>
+              <button type="button" class="btn btn-warning btn-xs"
+                      (click)="item.cancel()" [disabled]="!item.isUploading">
+                <span class="glyphicon glyphicon-ban-circle"></span> Cancel
+              </button>
+              <button type="button" class="btn btn-danger btn-xs"
+                      (click)="item.remove()">
+                <span class="glyphicon glyphicon-trash"></span> Remove
+              </button>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</article>
+<style>
+  .progress {
+    height: 33px;
+  }
+
+  .progress span {
+    line-height: 33px;
+  }
+</style>

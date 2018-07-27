@@ -1,0 +1,79 @@
+<!-- Banner -->
+<div id="banner" style="background-image:none;min-height: 600px">
+  <div style="height: 80px"></div>
+  <!--<div class="world-map">-->
+    <!--<div class = "cloud-bg-down">-->
+      <div  class="container header-container" >
+        <!--<div style="min-height: 650px;">-->
+          <div class="row">
+            <div class="col-md-12">
+              <!-- Logo -->
+              <div class="logo text-center"></div>
+              <div class="text-center forms">
+                <form class="form form-horizontal" #userForm="ngForm"
+                      (ngSubmit)="login()">
+                  <label  >
+                    <span style="color: #042940">New Account? </span>
+                    <a routerLink="/signup" style="color: #0e72af">Sign up Today</a>
+                  </label>
+                  <h2 style="color: #307b52">Log in and Success !</h2>
+                  <hr>
+                  <div class="username"
+                       [class.has-error]="username.invalid && username.touched">
+                    <label>Email</label> <input type="email" class="form-control"
+                                                name="username" required email [(ngModel)]="credentials.username"
+                                                #username="ngModel"> <label
+                    class="control-label"
+                    *ngIf="username.errors && username?.errors.required && username.touched">
+                    <i class="fa fa-times-circle-o"></i> Email is required
+                  </label> <label  class="control-label"
+                                   *ngIf="username.errors && username?.errors.email && username.touched">
+                    <i class="fa fa-times-circle-o"></i> Email is not valid
+                  </label>
+                  </div>
+                  <hr>
+                  <div class="password"
+                       [class.has-error]="password.invalid && password.touched">
+                    <label ><span style="margin-bottom:5px; float: left; text-decoration: none">Password</span>
+                      <a routerLink="/forgot" class="label-link" style="color: #0e72af;font-size: 12px"><strong>FORGOT PASSWORD?</strong></a>
+                    </label>
+                    <input type="password" class="form-control"
+                           name="password" required minlength="6"
+                           [(ngModel)]="credentials.password" #password="ngModel"> <label
+                    class="control-label"
+                    *ngIf="password.errors && password?.errors.minlength && password.touched">
+                    <i class="fa fa-times-circle-o"></i> Password must be at least 6
+                    characters long.
+                  </label> <label  class="control-label"
+                                   *ngIf="password.errors && password?.errors.required && password.touched">
+                    <i class="fa fa-times-circle-o"></i> Password is required
+                  </label>
+                  </div>
+                  <div style="margin: 15px"></div>
+                  <div align="center">
+                    <re-captcha (captchaResponse)="handleCorrectCaptcha($event)"
+                                site_key="6Lf8UT4UAAAAAATxr6GMmV_MO8CCRRaPEqnenguo"></re-captcha>
+                  </div>
+
+                  <button [disabled]=" userForm.invalid || !(recapcha_flag)"
+                          class="btn btn-primary btn-submit" type="submit" >
+                      <span><i [ngClass]="isLoading  ? 'fa fa-gear fa-spin':'fa '"></i>
+                      &nbsp;
+                      Login</span>
+                  </button>
+                </form>
+              </div>
+            </div>
+
+
+          </div>
+
+        </div>
+
+      <!--</div>-->
+    <!--</div>-->
+  <!--</div>-->
+
+</div>
+
+

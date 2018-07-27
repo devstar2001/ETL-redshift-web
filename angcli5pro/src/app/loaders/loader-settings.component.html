@@ -1,0 +1,369 @@
+<article id="main">
+  <section class="wrapper style4 container">
+    <h3 style="margin-top: 0px"><span class="icon fa-laptop"></span><strong>&nbsp;Loader Settings</strong></h3>
+
+<div class="row">
+  <nav class="navbar navbar-default navbar-inverse">
+    <div class="container-fluid">
+      <div class="wizard-links text-center"
+           id="bs-example-navbar-collapse-1">
+        <a class="wizard-link  active"><i class="fa fa-caret-right "
+                                          aria-hidden="true"></i> Settings</a> / <a class="wizard-link   "
+                                                                                    [routerLink]="['/loader/transforms']"><i
+        class="fa fa-caret-right " aria-hidden="true"></i> Transform</a> / <a
+        class="wizard-link   " [routerLink]="['/loader/summary']"><i
+        class="fa fa-caret-right " aria-hidden="true"></i> Summary</a>
+        <button
+          id="wizard-next-btn" [routerLink]="['/loader/transforms']" [disabled]="targetForm.invalid"
+          class="navbar-right btn navbar-btn btn-sm btn-primary">NEXT</button>
+      </div>
+    </div>
+  </nav>
+</div>
+<div class="row">
+  <div class="col-md-12">
+    <!-- Logo -->
+    <div class="logo text-center"></div>
+    <div class="text-center forms">
+      <form class="form form-horizontal" #targetForm="ngForm"
+            (ngSubmit)="CreateLoaderSetting()" style="margin-top:0;width: auto !important">
+        <div class="col-md-12">
+          <div class="col-md-6 form-group">
+            <div class="loader_name" [class.has-error]="loader_name.invalid && loader_name.touched">
+              <label>Loader Name</label> <input class="form-control"
+                                                name="loader_name" required [(ngModel)]="loader_sett_form.name"
+                                                #loader_name="ngModel">
+              <label class="control-label" *ngIf="loader_name.errors && loader_name.touched && loader_name?.errors.required ">
+               <i class="fa fa-times-circle-o"></i> Loader Name is required
+              </label>
+            </div>
+          </div>
+          <div class="col-md-6 form-group">
+            <div class="encoding"
+                 [class.has-error]="encoding.invalid && encoding.touched">
+              <label>File Encoding</label>
+              <select name="encoding" required
+                      [(ngModel)]="loader_sett_form.encoding" class="form-control"
+                      #encoding="ngModel">
+                <option *ngFor="let item of optionsData" [ngValue]="item.key" >{{item.value}}</option>
+              </select> <label class="control-label"
+                               *ngIf="encoding.errors && encoding?.errors.required && encoding.touched">
+              <i class="fa fa-times-circle-o"></i> Encoding is required
+            </label>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-12">
+          <div class="col-md-6 form-group">
+            <div class="sample_size"
+                 [class.has-error]="sample_size.invalid && sample_size.touched">
+              <label>Sample Size</label> <input class="form-control"
+                                                name="sample_size" required
+                                                [(ngModel)]="loader_sett_form.sample_size"
+                                                #sample_size="ngModel"> <small id="fileHelp"
+                                                                               class="form-text text-muted">This is the number of rows
+              we sampled from the original file. You will see the full set of
+              rows in the next step.</small> <label
+              class="control-label"
+              *ngIf="sample_size.errors && sample_size?.errors.required && sample_size.touched">
+              <i class="fa fa-times-circle-o"></i> Sample Size is required
+            </label>
+            </div>
+          </div>
+          <div class="col-md-6 form-group">
+            <div class="delimiter">
+                 <!--[class.has-error]="custom_delimiter.invalid && custom_delimiter.touched">-->
+              <label>Delimiter</label>
+              <select name="delimiter" required
+                      [(ngModel)]="loader_sett_form.delimiter"
+                      (ngModelChange)="delimiterChanged($event)"
+                      class="form-control"
+                      #delimiter="ngModel">
+                <option *ngFor="let item of delimitersOptions" [ngValue]="item.value" >{{item.key}}</option>
+              </select>
+              <input *ngIf="custom_selected" class="form-control"
+                     name="custom_delimiter" required [(ngModel)]="customDelimiter"
+                     #custom_delimiter="ngModel">
+              <!-- 							<small class="form-text text-muted">Use no_delimiter in case this is not a delimited file.</small>  -->
+              <!--<label-->
+                <!--class="control-label"-->
+                <!--*ngIf="custom_delimiter.errors && custom_delimiter?.errors.required && custom_delimiter.touched">-->
+                <!--<i class="fa fa-times-circle-o"></i> Delimiter is required-->
+              <!--</label>-->
+            </div>
+          </div>
+        </div>
+        <div class="col-md-12">
+          <div class="col-md-6 form-group">
+            <div [class.has-error]="redshift.invalid && redshift.touched">
+              <label>Target Name</label>
+              <select required (change)="targetChange()"
+                      style="margin-left: 32px; width: 60%; float: left;"
+                      name="redshift" class="form-control"
+                      [(ngModel)]="loader_sett_form.redshift_id" #redshift="ngModel">
+                <option value="" selected>---</option>
+                <option *ngFor="let c of targetList" [ngValue]="c.id" >{{c.target_name}}</option>
+
+              </select>
+              <a [routerLink]="['/targets/add']" style="padding: 5px 10px; font-size: 12px; line-height: 1.5; border-radius: 3px; background: #337ab7;"
+                 class="btn btn-primary">Add
+                Target</a>
+
+              <label  class="control-label"
+                      *ngIf="redshift.errors && redshift?.errors.required && redshift.touched">
+                <i class="fa fa-times-circle-o"></i> Target Name is required
+              </label>
+            </div>
+          </div>
+          <div class="col-md-6 form-group">
+            <div [class.has-error]="schema_name.invalid && schema_name.touched">
+              <label for="schema_name">Schema Name</label>
+              <select required
+                      style="margin-left: 32px; float: left;"
+                      name="schema_name" class="form-control"
+                      [(ngModel)]="loader_sett_form.schema_name" id="schema_name" #schema_name="ngModel">
+                <option value="" selected>---</option>
+                <option *ngFor="let c of schemaList" [ngValue]="c.schema_name">{{c.schema_name}}</option>
+
+              </select>
+              <div class="row"></div>
+              <label  class="control-label "
+                      *ngIf="schema_name.errors && schema_name?.errors.required && schema_name.touched">
+
+                <i class="fa fa-times-circle-o"></i> Schema Name is required
+              </label>
+
+            </div>
+          </div>
+        </div>
+        <div class="col-md-12">
+          <div class="col-md-6 form-group">
+            <div
+              [class.has-error]="files.invalid && files.touched">
+              <label>CSV Files</label>
+              <!--<input class="form-control" style="margin-left: 32px; width: 60%; float: left;"-->
+              <!--name="files" required [(ngModel)]="loader_sett_form.file" #files="ngModel">-->
+              <input class="form-control" style="margin-left: 32px; width: 60%; float: left;" (dblclick)="openSelectFileModal(selectS3FileTemplate)" name="files" required [(ngModel)]="loader_sett_form.file" #files="ngModel">
+              <a  style="padding: 5px 10px; font-size: 12px; line-height: 1.5; border-radius: 3px; background: #d95daf;"
+                  (click)="ViewRaw()" class="btn btn-primary">
+
+                                  <span [ngClass]="gettingRawData ? 'loading-button':''" >
+                                  <i [ngClass]="gettingRawData  ? 'fa fa-gear fa-spin':'fa '"></i>
+                                  &nbsp;&nbsp;Raw View</span></a>
+              <label  class="control-label"
+                      *ngIf="files.errors && files?.errors.required && files.touched">
+                <i class="fa fa-times-circle-o"></i> CSV Files are required
+              </label>
+            </div>
+
+          </div>
+          <div class="col-md-6 form-group">
+
+            <div class="col-md-8 form-group"
+                 [class.has-error]="table_name.invalid && table_name.touched">
+              <label>Table Name</label> <input class="form-control"
+                                               name="table_name" required
+                                               [(ngModel)]="loader_sett_form.table_name" #table_name="ngModel">
+              <label  class="control-label"
+                      *ngIf="table_name.errors && table_name?.errors.required && table_name.touched">
+                <i class="fa fa-times-circle-o"></i> Table Name is required
+              </label>
+            </div>
+            <div class="col-md-4 form-group"
+                 [class.has-error]="skip_errors.invalid && skip_errors.touched">
+              <label>Skip Errors</label>
+              <input class="form-control" name="skip_errors" required
+                     [(ngModel)]="loader_sett_form.skip_errors" #skip_errors="ngModel">
+              <label  class="control-label"
+                      *ngIf="skip_errors.errors && skip_errors?.errors.required && skip_errors.touched">
+                <i class="fa fa-times-circle-o"></i> Skip Error Counts is required
+              </label>
+            </div>
+
+
+          </div>
+
+        </div>
+        <div *ngIf="loader_sett_form.folder" class="col-md-12" >
+          <div class="col-md-12 form-group">
+            <div class=" col-md-12"
+                 [class.has-error]="table_name.invalid && table_name.touched">
+              <div class="col-md-3">
+                <label style="margin-left: 0px">Loader Type</label>
+              </div>
+              <div class="col-md-5">
+                <!--<label class="radio-inline"-->
+                <!--style="display: inline-block; padding-top: 0px;"> <input-->
+                <!--type="radio" value="New" name="radiobtn"-->
+                <!--[(ngModel)]="loader_sett_form.strategy">New-->
+                <!--</label>-->
+                <label class="radio-inline"
+                       style="display: inline-block; padding-top: 0px;"> <input
+                  type="radio" value="file" name="radiobtn1" disabled
+                  [(ngModel)]="loader_sett_form.load_type">File
+                </label>
+                <label class="radio-inline"
+                       style="display: inline-block; padding-top: 0px;"> <input
+                  type="radio" value="folder" name="radiobtn1" disabled
+                  [(ngModel)]="loader_sett_form.load_type">Folder
+                </label>
+              </div>
+              <div class="col-md-5"></div>
+              <p style="font-size: 11px;" class=" col-md-12 help-block">Folder Name : {{loader_sett_form.folder}} , File Counts : {{loader_sett_form.file_count}}</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-12">
+          <div class="col-md-12 form-group">
+            <div class=" col-md-12"
+                 [class.has-error]="table_name.invalid && table_name.touched">
+              <div class="col-md-3">
+                <label style="margin-left: 0px">Table Update Mode</label>
+              </div>
+              <div class="col-md-5">
+                <!--<label class="radio-inline"-->
+                       <!--style="display: inline-block; padding-top: 0px;"> <input-->
+                  <!--type="radio" value="New" name="radiobtn"-->
+                  <!--[(ngModel)]="loader_sett_form.strategy">New-->
+                <!--</label>-->
+                <label class="radio-inline"
+                       style="display: inline-block; padding-top: 0px;"> <input
+                  type="radio" value="Replace" name="radiobtn"
+                  [(ngModel)]="loader_sett_form.strategy">Replace
+                </label>
+                <label class="radio-inline"
+                       style="display: inline-block; padding-top: 0px;"> <input
+                  type="radio" value="Append" name="radiobtn"
+                  [(ngModel)]="loader_sett_form.strategy">Append
+                </label>
+              </div>
+              <div class="col-md-5"></div>
+              <p style="font-size: 11px;" class=" col-md-12 help-block">When
+                the target table already exists, the above method will be used
+                to load new data. If the target table and the incoming data are
+                structurally different, an error message will be sent.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-12">
+          <div class="form-group col-md-6">
+            <div class="checkbox">
+              <label> <input type="checkbox" class="pull-left"
+                             name="is_header" [(ngModel)]="loader_sett_form.is_header"
+                             #is_header="ngModel"> Includes Header Row
+              </label> <small class="form-text text-muted">Checked if the first
+              row of the file includes column names</small>
+            </div>
+          </div>
+
+        </div>
+        <div class="row">
+          <div class="col-md-6" align="center">
+            <a routerLink="/sources" class="btn navbar-btn btn-sm btn-primary"
+               style="padding: 5px 50px; margin: 20px; font-size: 12px; line-height: 1.5; border-radius: 3px; background: #337ab7;"
+            >CANCEL</a></div>
+          <div class="col-md-6" align="center">
+            <button class="btn navbar-btn btn-sm btn-primary"
+                    [disabled]="targetForm.invalid || gettingBundle || gettingTargets || gettingSchema "
+                    type="submit" style="padding: 5px 60px; margin: 20px; font-size: 12px; line-height: 1.5; border-radius: 3px; background: #D95DB0;">
+                <span [ngClass]="gettingBundle || gettingTargets || gettingSchema ? 'loading-button':''" >
+                <i [ngClass]="gettingBundle || gettingTargets || gettingSchema ? 'fa fa-gear fa-spin':'fa '"></i>
+              &nbsp;SAVE</span></button>
+          </div>
+
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+<div class="col-md-12" align="center">
+  <div style="max-width: 100%; max-height: 100%;"
+       class="row table-responsive" *ngIf="raw_data">
+    <table class="table table-bordered table-fixed">
+      <thead>
+      <tr><th>{{csv_files}} </th> </tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td>
+          <pre style="color: #000303; background: transparent"> {{raw_data}} </pre>
+
+
+
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<ng-template #selectS3FileTemplate >
+  <form (ngSubmit)="selectedOneFileMethod()">
+    <div class="modal-header">
+      <h4 class="modal-title pull-left">Please select a file from s3 storage file list</h4>
+      <button type="button" class="close pull-right" (click)="hideModal()"
+              aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body" >
+      <div class="form-group">
+        <label class="control-label">Current file : {{modal_file_name}}</label>
+      </div>
+      <div class="preview">
+        <h5>File List</h5>
+        <div class="preview-content"
+             style="height: 50%; overflow: scroll; font-size: 11px;">
+          <table class="table table-bordered table-fixed" >
+            <thead>
+            <tr>
+              <th>No</th>
+              <th>File</th>
+              <th>Upload Status</th>
+              <th>Created</th>
+            </tr>
+            </thead>
+            <tbody *ngIf="fileList" style="cursor: pointer" >
+            <tr *ngFor="let file of fileList; let counter = index" (click)="SelectedFile(file.filename)">
+              <th scope="row">{{counter + 1}}</th>
+              <td>{{file.filename}}</td>
+              <td>{{file.uploaded}}</td>
+              <td>{{file.created | date:'yyyy-MM-dd HH:mm:ss'}}</td>
+            </tr>
+            </tbody>
+            <tbody *ngIf="!fileList && !gettingFiles">
+            <tr>
+              <th colspan="2">No Data</th>
+            </tr>
+            </tbody>
+            <tbody *ngIf="!fileList && !gettingFiles">
+            <tr>
+              <th colspan="4">
+                <h3 style="text-align: center;">Getting Files...</h3>
+                <div class="spinner">
+                  <div class="bounce1"></div>
+                  <div class="bounce2"></div>
+                  <div class="bounce3"></div>
+                </div>
+              </th>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div class="text-right">
+        <button type="submit" style="padding: 5px 10px; font-size: 12px; line-height: 1.5; border-radius: 3px; background: #d95daf;" class="btn btn-success">
+          <i [ngClass]="gettingFiles  ? 'fa fa-gear fa-spin':'fa '"></i>
+          &nbsp;OK</button>
+        <button type="button" class="btn btn-default" (click)="hideModal()" style="padding: 5px 50px; margin: 20px; font-size: 12px; line-height: 1.5; border-radius: 3px; background: #337ab7;">
+          Cancel</button>
+      </div>
+    </div>
+  </form>
+</ng-template>
+  </section>
+</article>

@@ -1,0 +1,130 @@
+<!-- Banner -->
+<div id="banner" style="background-image:none;min-height: 600px">
+  <div style="height: 80px"></div>
+
+      <div  class="container header-container" >
+
+          <div class="row">
+            <div class="col-sm-12">
+              <!-- Logo -->
+              <div class="text-center forms">
+                <form [hidden]="active_status" class="form form-horizontal"
+                      #userForm="ngForm" (ngSubmit)="register()">
+                  <label  >
+                    <span style="color: #042940">
+                    Already have an account? </span><a routerLink="/signin" style="color: #0e72af"
+                                                routerLinkActive="active">Log In</a>
+
+                  </label>
+                  <h2 style="color: #307b52">
+                    JOIN<b> DATAEXO TODAY!</b>
+                  </h2>
+                  <hr>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="first_name"
+                           [class.has-error]="first_name.invalid && first_name.touched">
+                        <label>First Name</label>
+                        <input class="form-control col-sm-5"
+                               name="first_name" required [(ngModel)]="user.first_name"
+                               #first_name="ngModel">
+                        <label class="control-label"
+                               *ngIf="first_name.errors && first_name?.errors.required && first_name.touched">
+                          <i class="fa fa-times-circle-o"></i>
+                          First Name is required
+                        </label>
+                      </div>
+                    </div>
+                    <div class="col-md-5">
+                      <div class="last_name"
+                           [class.has-error]="last_name.invalid && last_name.touched">
+                        <label>Last Name</label>
+                        <input class="form-control col-sm-5"
+                               name="last_name" required [(ngModel)]="user.last_name"
+                               #last_name="ngModel">
+                        <label class="control-label"
+                               *ngIf="last_name.errors && last_name?.errors.required && last_name.touched">
+                          <i class="fa fa-times-circle-o"></i> Last Name is required
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <hr>
+                  <div [class.has-error]="username.invalid && username.touched">
+                    <label>Email</label>
+                    <input type="email" class="form-control"
+                           name="username" required email [(ngModel)]="user.username"
+                           #username="ngModel">
+                    <label class="control-label"
+                           *ngIf="username.errors && username?.errors.required && username.touched">
+                      <i class="fa fa-times-circle-o"></i> Email is required
+                    </label>
+                    <label class="control-label"
+                           *ngIf="username.errors && username?.errors.email && username.touched">
+                      <i class="fa fa-times-circle-o"></i> Email is not valid
+                    </label>
+                  </div>
+                  <hr>
+                  <div [class.has-error]="password1.invalid && password1.touched">
+                    <label>Password</label>
+                    <input type="password" class="form-control" (focus)="isMatched=true"
+                           name="password1" required minlength="6" [(ngModel)]="first_password"
+                           #password1="ngModel"> <label class="control-label"
+                                                        *ngIf="password1.errors && password1?.errors.minlength && password1.touched">
+                    <i class="fa fa-times-circle-o"></i> Password must be at least 6
+                    characters long.
+                  </label>
+                    <label class="control-label"
+                           *ngIf="password1.errors && password1?.errors.required && password1.touched">
+                      <i class="fa fa-times-circle-o"></i> Password is required
+                    </label>
+                  </div>
+
+                  <div [class.has-error]="password2.invalid && password2.touched">
+                    <label>Confirm Password</label>
+                    <input type="password" class="form-control" (focus)="isMatched=true"
+                           name="password" required minlength="6" [(ngModel)]="second_password"
+                           #password2="ngModel">
+                    <label class="control-label"
+                           *ngIf="password2.errors && password2?.errors.minlength && password2.touched">
+                      <i class="fa fa-times-circle-o"></i>
+                      Password must be at least 6 characters long.
+                    </label>
+                    <label class="control-label"
+                           *ngIf="password2.errors && password2?.errors.required && password2.touched">
+                      <i class="fa fa-times-circle-o"></i>
+                      Password is required
+                    </label>
+                    <label class="control-label"
+                           *ngIf="!isMatched">
+                      <i class="fa fa-times-circle-o"></i>
+                      DOES NOT MATCH YOUR PASSWORD
+                    </label>
+                  </div>
+                  <hr>
+
+                  <div style="margin: 15px"></div>
+                  <div align="center">
+                    <re-captcha (captchaResponse)="handleCorrectCaptcha($event)"
+                                site_key="6Lf8UT4UAAAAAATxr6GMmV_MO8CCRRaPEqnenguo"></re-captcha>
+                  </div>
+                  <button [disabled]=" userForm.invalid || !(recapcha_flag) "
+                          class="btn btn-primary btn-submit" type="submit">
+                  <span><i [ngClass]="isLoading  ? 'fa fa-gear fa-spin':'fa '"></i>
+                  &nbsp;Register</span></button>
+
+                </form>
+                <form [hidden]="!active_status" class="form form-horizontal">
+                  <h2 style="text-align: center; color: green;">Your account must
+                    be approved before you can access. please check your email for an
+                    update shortly.</h2>
+                </form>
+              </div>
+            </div>
+          </div>
+
+
+      </div>
+
+</div>

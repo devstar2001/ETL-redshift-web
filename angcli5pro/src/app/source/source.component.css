@@ -1,0 +1,91 @@
+/* width */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+  /*background-color: #F5F5F5;*/
+  background-color: transparent;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  border-radius: 10px;
+  background: rgba(0,0,0,0.1);
+  border: 1px solid #ccc;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background: linear-gradient(to left, #fff, #e4e4e4);
+  border: 1px solid #aaa;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #fff;
+}
+::-webkit-scrollbar-thumb:active {
+  background: linear-gradient(to left, #22ADD4, #1E98BA);
+}
+
+.table{
+  background: transparent;
+}
+.table tr.active td {
+  background-color: rgba(156, 30, 127, 0.22) !important;
+  opacity: 0.8;
+  color: white;
+}
+
+/*.table-hover tbody tr:hover td, .table-hover tbody tr:hover th {*/
+  /*background-color: #D95DB0;*/
+/*}*/
+.bucket-button{
+  width: 110px;
+  font-size: 12px;
+  margin-left : 10px;
+  /*background: transparent;*/
+  /*color: white;*/
+
+}
+.source-button{
+  width: 110px;
+  font-size: 14px;
+  font-weight: initial;
+  margin-left : 25px;
+  margin-bottom: 3px;
+  /*background: transparent;*/
+  /*color: white;*/
+}
+.split-button{
+  white-space: nowrap;
+  /*color:white;*/
+  font-size:15px;
+  vertical-align: middle;
+  border: none;
+  /*background: transparent;*/
+}
+.icon-button{
+  background-color: transparent;
+  margin:1px;
+  /*color:white;*/
+  font-size:18px;
+  vertical-align: bottom;
+}
+.source-style{
+  background: transparent;
+  border-radius: 3px;
+  font-size: 17px;
+}
+.mat-sort-header-container {
+  align-items: center;
+}
+.modal-container-d1{
+  width: 400px;
+  height: 300px;
+}
+.lodr-pretty-table{
+  border: 1px solid lightgray;
+  padding: 10px 20px;
+  border-radius: 2px;
+}

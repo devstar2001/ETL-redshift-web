@@ -1,0 +1,98 @@
+<article id="main">
+  <!--<section class="wrapper style4 container">-->
+
+<div class="row">
+
+  <div class="col-md-12">
+    <!-- Logo -->
+    <div class="logo text-center"></div>
+    <div class="text-center forms">
+
+      <form class="form form-horizontal" #targetForm="ngForm"
+            (ngSubmit)="addTarget()">
+        <h3 style="margin-top: 0px"><span class="icon fa-laptop"></span><strong>&nbsp;Add Target</strong></h3>
+        <div [class.has-error]="target_name.invalid && target_name.touched">
+          <label>Target Name</label> <input class="form-control"
+                                            name="database_name" required
+                                            [(ngModel)]="database_form.target_name" #target_name="ngModel">
+          <label  class="control-label"
+                  *ngIf="target_name.errors && target_name?.errors.required && target_name.touched">
+            <i class="fa fa-times-circle-o"></i> Target Name is required
+          </label>
+        </div>
+        <hr>
+        <div [class.has-error]="name.invalid && name.touched">
+          <label>Database Name</label> <input class="form-control"
+                                              name="name" required [(ngModel)]="database_form.name"
+                                              #name="ngModel"> <label
+          class="control-label"
+          *ngIf="name.errors && name?.errors.required && name.touched">
+          <i class="fa fa-times-circle-o"></i> Name is required
+        </label>
+        </div>
+        <hr>
+        <div [class.has-error]="port.invalid && port.touched">
+          <label>Port</label> <input type="port" class="form-control"
+                                     name="port" required [(ngModel)]="database_form.port"
+                                     #port="ngModel"> <label
+          class="control-label"
+          *ngIf="port.errors && port?.errors.required && port.touched">
+          <i class="fa fa-times-circle-o"></i> Port is required
+        </label>
+        </div>
+        <hr>
+        <div
+          [class.has-error]="host.invalid && host.touched">
+          <label>Host Address / Server</label> <input class="form-control"
+                                                      name="host" required [(ngModel)]="database_form.host"
+                                                      #host="ngModel"> <label
+          class="control-label"
+          *ngIf="host.errors && host?.errors.required && host.touched">
+          <i class="fa fa-times-circle-o"></i> Host is required
+        </label>
+        </div>
+        <hr>
+        <div
+          [class.has-error]="username.invalid && username.touched">
+          <label>User Name</label> <input class="form-control"
+                                          name="username" required [(ngModel)]="database_form.username"
+                                          #username="ngModel"> <label
+          class="control-label"
+          *ngIf="username.errors && username?.errors.required && username.touched">
+          <i class="fa fa-times-circle-o"></i> Username is required
+        </label>
+        </div>
+        <hr>
+        <div
+          [class.has-error]="password.invalid && password.touched">
+          <label>Password</label> <input type="password" class="form-control"
+                                         name="password" required [(ngModel)]="database_form.password"
+                                         #password="ngModel"> <label
+          class="control-label"
+          *ngIf="password.errors && password?.errors.required && password.touched">
+          <i class="fa fa-times-circle-o"></i> Password is required
+        </label>
+        </div>
+        <div class="row">
+          <div class="col-md-6" align="center">
+            <a routerLink="/targets" class="btn navbar-btn btn-sm btn-primary"
+               style="padding: 5px 40px; margin: 20px; font-size: 12px; line-height: 1.5; border-radius: 3px; background: #337ab7;"
+            >CANCEL</a></div>
+          <div class="col-md-6" align="center">
+            <button  class="btn navbar-btn btn-sm btn-primary" [disabled]="targetForm.invalid"
+                     type="submit" style="padding: 5px 50px; margin: 20px; font-size: 12px; line-height: 1.5; border-radius: 3px; background: #D95DB0;">
+                           <span >
+                            <i [ngClass]="isLoading ? 'fa fa-gear fa-spin':'fa '"></i>
+                             &nbsp;SAVE
+                           </span></button>
+          </div>
+
+
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+  <!--</section>-->
+</article>

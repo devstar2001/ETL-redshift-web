@@ -1,0 +1,407 @@
+<article id="main">
+  <section class="wrapper style4 container">
+    <h3 style="margin-top: 0px"><span class="icon fa-laptop"></span><strong>&nbsp;Loader Settings</strong></h3>
+
+<div class="row">
+  <a style="cursor:pointer;padding: 5px 10px; font-size: 12px; line-height: 1.5; border-radius: 3px; "
+     class="btn   btn-primary "
+     [routerLink]="['/loader/transforms']">BACK</a>
+  <a style="cursor:pointer;padding: 5px 10px; font-size: 12px; line-height: 1.5; border-radius: 3px; background: #D95DB0;"
+     class="pull-right btn btn-primary"
+     (click)="runLoader()">
+            <span [ngClass]="isLoading ? 'loading-button':''" >
+              <i [ngClass]="isLoading ? 'fa fa-gear fa-spin':'fa '"></i>
+              &nbsp;RUN&nbsp;</span>
+  </a>
+
+
+  <nav class="navbar navbar-default navbar-inverse "
+       style="margin-bottom: 0px;">
+    <div class="container-fluid">
+      <div class="wizard-links text-center"
+           id="bs-example-navbar-collapse-1">
+        <a class="wizard-link"
+           [routerLink]="['/loader/settings']"><i
+          class="fa fa-caret-right " aria-hidden="true"></i> Settings</a> / <a
+        class="wizard-link" [routerLink]="['/loader/transforms']"><i
+        class="fa fa-caret-right " aria-hidden="true"></i> Transform</a> / <a
+        class="wizard-link active"><i class="fa fa-caret-right "
+                                      aria-hidden="true"></i> Summary</a>
+
+      </div>
+    </div>
+  </nav>
+
+</div>
+<hr>
+<div class="row">
+  <div class="text-center col-md-12">
+    <h1 style="margin-top: 0px;">You're all set to load data!</h1>
+    <p class="lg-subtitle">Review the summary below before running the
+      load job : <strong>{{loader_sett_form.name}}</strong></p>
+  </div>
+</div>
+
+<hr>
+<div class="row">
+  <div class="row summary-section col-md-12">
+    <div class="col-sm-1 summary-status-ok">
+      <i class="fa fa-check-circle fa-3x summary-status-ok"
+         aria-hidden="true"></i>
+    </div>
+    <div class="col-sm-9">
+      <h3>Source and Target</h3>
+      <ul class="lg-subtitle ">
+        <li>
+          Loader Type : <strong>{{loader_sett_form.load_type}} </strong>
+        </li>
+        <li *ngIf="loader_sett_form.load_type == 'folder'">
+          Folder Name: <strong>{{loader_sett_form.folder}} </strong>
+        </li>
+        <li *ngIf="loader_sett_form.load_type == 'folder'">
+          File Count: <strong>{{loader_sett_form.file_count}}</strong>
+        </li>
+
+        <li *ngIf="loader_sett_form.load_type == 'file'">
+          Source file : <strong>{{loader_sett_form.file}} </strong>
+          , Existing at s3 : {{file_exist}}
+        </li>
+        <li>
+          Table <strong>{{loader_sett_form.table_name}}</strong> will be
+          loaded with the <strong>{{loader_sett_form.strategy}}</strong>
+          strategy
+        </li>
+      </ul>
+      <!-- end details -->
+    </div>
+    <div class="col-sm-2">
+      <a class="btn btn-primary" style="padding: 5px 10px; font-size: 12px; line-height: 1.5; border-radius: 3px; background: #28b78f;"
+         [routerLink]="['/loader/settings']">
+        <span [ngClass]="isGettingStrategy ? 'loading-button':''" >
+                <i [ngClass]="isGettingStrategy ? 'fa fa-gear fa-spin':'fa '"></i>
+          &nbsp;Edit&nbsp;</span></a>
+    </div>
+  </div>
+</div>
+<hr>
+<div class="row">
+  <div class="row summary-section col-md-12">
+    <div class="col-sm-1 summary-status-ok">
+      <i class="fa fa-check-circle fa-3x summary-status-ok"
+         aria-hidden="true"></i>
+    </div>
+    <div class="col-sm-9">
+      <h3>Transformations (Lines : {{lineCount}})</h3>
+      <ul class="lg-subtitle ">
+        <li >{{transformationCount}} transformations
+          will produce {{columnCount}} columns.</li>
+        <li> primary keys : "{{pk_coumn_name}}"</li>
+      </ul>
+
+    </div>
+    <div class="col-sm-2">
+      <a class="btn btn-primary" style="padding: 5px 10px; font-size: 12px; line-height: 1.5; border-radius: 3px; background: #28b78f;"
+         [routerLink]="['/loader/transforms']">
+        <span [ngClass]="isGettingCol ? 'loading-button':''" >
+                <i [ngClass]="isGettingCol ? 'fa fa-gear fa-spin':'fa '"></i>
+          &nbsp;Edit&nbsp;</span></a>
+    </div>
+  </div>
+
+</div>
+<hr>
+<div class="row" style="margin-bottom: 50px">
+  <div class="row summary-section col-md-12">
+    <div class="col-sm-1 summary-status-ok">
+      <i class="fa fa-check-circle fa-3x summary-status-ok"
+         aria-hidden="true"></i>
+    </div>
+    <div class="col-sm-9">
+      <h3>Load Schedule : {{schedule_frequency}}</h3>
+      <p *ngIf="schedule_frequency == 'None'" class="lg-subtitle ">
+        This loader has not been scheduled. Click Edit to add a schedule.
+      </p>
+      <p *ngIf="schedule_frequency == 'Once'" class="lg-subtitle ">
+        This loader was scheduled to run once on {{current_date +" " + current_time + " " + current_timezone}}.
+      </p>
+      <ul *ngIf="schedule_frequency == 'Minutely'" class="lg-subtitle ">
+        <li>
+          Every {{frequency + " " + frequencyUnit}}
+          <span *ngIf="hours_of_day.length !=0">
+            {{" at "+ hours_of_day }}
+          </span>
+
+        </li>
+        <li>
+          Load starts on : {{current_date +" " + current_time + " " + current_timezone}}.
+        </li>
+
+      </ul>
+      <ul *ngIf="schedule_frequency == 'Hourly'" class="lg-subtitle ">
+        <li>
+          Every {{frequency+ " " + frequencyUnit}}
+          <span *ngIf="days_of_week.length !=0">
+            {{" on "+ days_of_week}}
+          </span>
+
+
+        </li>
+        <li>
+          Load starts on : {{current_date +" " + current_time + " " + current_timezone}}.
+        </li>
+
+      </ul>
+      <ul *ngIf="schedule_frequency == 'Daily'" class="lg-subtitle ">
+        <li>
+          Every {{frequency + " " + frequencyUnit}}
+
+        </li>
+        <li>
+          Load starts on : {{current_date +" " + current_time + " " + current_timezone}}.
+        </li>
+
+      </ul>
+      <ul *ngIf="schedule_frequency == 'Weekly'" class="lg-subtitle ">
+        <li>
+          Every load {{" on "+ days_of_week}}
+
+        </li>
+        <li>
+          Load starts on : {{current_date +" " + current_time + " " + current_timezone}}.
+        </li>
+
+      </ul>
+      <ul *ngIf="schedule_frequency == 'Monthly'" class="lg-subtitle ">
+        <li>
+
+          Every {{frequency + " " + frequencyUnit}}
+          <span *ngIf="days_of_week.length != 0">
+            {{" on "+ days_of_week}}
+          </span>
+          <span *ngIf="days_of_month != undefined">
+            {{" on the "+ days_of_month + "(th) day"}}
+          </span>
+
+        </li>
+        <li>
+          Load starts on : {{current_date +" " + current_time + " " + current_timezone}}.
+        </li>
+
+      </ul>
+
+      <ul *ngIf="schedule_frequency == 'Yearly'" class="lg-subtitle ">
+        <li>
+          Every year
+          <span *ngIf="months_of_year.length !=0">
+            {{" in the " + months_of_year +"(th) month "}}
+          </span>
+          <span *ngIf="days_of_month != undefined">
+            {{" on the "+ days_of_month + "(th) day"}}
+          </span>
+          <span *ngIf="days_of_week.length != 0">
+            {{" on "+ days_of_week }}
+          </span>
+
+        </li>
+        <li>
+          Load starts on : {{current_date +" " + current_time + " " + current_timezone}}.
+        </li>
+
+      </ul>
+      <!-- end details -->
+    </div>
+    <div class="col-sm-2">
+      <!--<a class="btn btn-primary" style="padding: 5px 10px; font-size: 12px; line-height: 1.5; border-radius: 3px; background: #28b78f;"         [routerLink]="['/loader/settings']">-->
+      <a (click)="openSelectFileModal(ScheduleTemplate)" class="btn btn-primary" style="padding: 5px 10px; font-size: 12px; line-height: 1.5; border-radius: 3px; background: #28b78f;">
+        <span [ngClass]="isGettingStrategy ? 'loading-button':''" >
+                <i [ngClass]="isGettingStrategy ? 'fa fa-gear fa-spin':'fa '"></i>
+          &nbsp;Edit&nbsp;</span></a>
+    </div>
+  </div>
+</div>
+<ng-template #ScheduleTemplate >
+  <div class="modal-header">
+    <h4 class="modal-title pull-left" style="font-size: 19px">
+      <i class="fa fa-calendar " aria-hidden="true"></i>
+      Schedule Loader</h4>
+    <button type="button" class="close pull-right" (click)="hideModal()"
+            aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+    <form (ngSubmit)="test()" class="form-horizontal" >
+
+      <div class="modal-body" style="overflow-y: auto;padding-top: 30px !important; padding-left: 60px !important; max-height: 400px;">
+        <div class="form-group col-sm-11">
+          <label class="control-label" style="font-size: 16px; ">
+            Schedule Frequency
+          </label>
+          <div>
+            <label class="radio-inline"
+                   style="display: inline-block; width: 80px; margin-left: 5px;"> <input
+              type="radio" value="None" name="radiobtn" [(ngModel)]="schedule_frequency"   (change)="ChangeFrequency()"
+            >None
+            </label>
+            <label class="radio-inline"
+                   style="display: inline-block;width: 80px; margin-left: 5px;"> <input
+              type="radio" value="Once" name="radiobtn" [(ngModel)]="schedule_frequency"   (change)="ChangeFrequency()"
+            >Once
+            </label>
+            <label class="radio-inline"
+                   style="display: inline-block; width: 80px; margin-left: 5px;"> <input
+              type="radio" value="Minutely" name="radiobtn" [(ngModel)]="schedule_frequency"   (change)="ChangeFrequency()"
+            >Minutely
+            </label>
+            <label class="radio-inline"
+                   style="display: inline-block; width: 80px; margin-left: 5px;"> <input
+              type="radio" value="Hourly" name="radiobtn" [(ngModel)]="schedule_frequency"   (change)="ChangeFrequency()"
+            >Hourly
+            </label>
+            <label class="radio-inline"
+                   style="display: inline-block; width: 80px; margin-left: 5px;"> <input
+              type="radio" value="Daily" name="radiobtn" [(ngModel)]="schedule_frequency"   (change)="ChangeFrequency()"
+            >Daily
+            </label>
+            <label class="radio-inline"
+                   style="display: inline-block;width: 80px; margin-left: 5px;"> <input
+              type="radio" value="Weekly" name="radiobtn" [(ngModel)]="schedule_frequency"   (change)="ChangeFrequency()"
+            >Weekly
+            </label>
+            <label class="radio-inline"
+                   style="display: inline-block; width: 80px; margin-left: 5px;"> <input
+              type="radio" value="Monthly" name="radiobtn" [(ngModel)]="schedule_frequency"   (change)="ChangeFrequency()"
+            >Monthly
+            </label>
+            <label class="radio-inline"
+                   style="display: inline-block; width: 80px; margin-left: 5px;"> <input
+              type="radio" value="Yearly" name="radiobtn" [(ngModel)]="schedule_frequency"   (change)="ChangeFrequency()"
+            >Yearly
+            </label>
+          </div>
+
+        </div>
+
+        <div *ngIf="schedule_frequency=='Once'||schedule_frequency=='Minutely'||schedule_frequency=='Hourly'||schedule_frequency=='Daily'||schedule_frequency=='Weekly'||schedule_frequency=='Monthly'||schedule_frequency=='Yearly'"
+             class="form-group " id="start-time-options">
+          <div class="col-sm-4">
+            <label class="control-label" for="loader_start_date">Starts On</label>
+            <input class="form-control"  type="date"  [(ngModel)]="current_date " id="loader_start_date" name="loader_start_date">
+          </div>
+          <div class="col-sm-4">
+            <label class="control-label" for="loader_start_time">Time</label>
+            <input class="form-control" [(ngModel)]="current_time" type="time" name="loader_start_time" id="loader_start_time"   (click)="open()"  >
+          </div>
+          <div class="col-sm-4">
+            <label class="control-label" for="loader_time_zone">Time Zone</label>
+            <select class="form-control custom-select" name="loader_time_zone" id="loader_time_zone" [(ngModel)]="current_timezone" (change)="changeDate()">
+              <option *ngFor="let item of optionsTimezoneData" [ngValue]="item" >{{item}}</option>
+            </select>
+          </div>
+        </div>
+
+        <div *ngIf="schedule_frequency=='Minutely'||schedule_frequency=='Hourly'||schedule_frequency=='Daily'||schedule_frequency=='Monthly'" class="form-inline " id="periodic-option" style="display: block;margin-top: 30px !important;">
+          <hr>
+
+          <p class="form-control-static"><strong>Runs Every</strong>
+            <input class="form-control form-inline " [(ngModel)]="frequency" size="5" minimum="1" style="width:80px;margin-right: 20px !important;" type="number" value="1" name="loader[schedule_period]" id="loader_schedule_period">
+            <strong class="period-type"> {{frequencyUnit}} </strong></p>
+        </div>
+        <div *ngIf="schedule_frequency=='Minutely'"
+             class="form-group" style="display: block;">
+          <hr>
+
+          <div class="col-sm-11">
+            <label class="control-label" >On Hours of Day</label> <br>
+            <ng-container *ngFor="let hour of hourData">
+              <label class="checkbox-inline"
+                     style="margin-left: 10px;width:45px" for="checkbox_hour_{{hour}}">
+                <input  (change)="changeSelectHours($event)" [checked]="getCheckHours(hour)" [value]="hour" type="checkbox" id="checkbox_hour_{{hour}}" name="loader[hours_of_day]" >{{hour}}</label>
+            </ng-container>
+          </div>
+
+        </div>
+
+        <div *ngIf="schedule_frequency=='Yearly'"
+             class="form-group" id="month-of-year-option" style="display: block;">
+          <hr>
+
+          <div class="col-sm-11">
+            <label class="control-label" >On Months of Year</label> <br>
+            <ng-container *ngFor="let month of monthData">
+              <label data-value="january" class="checkbox-inline"
+                     style="margin-left: 10px;width:100px" for="loader_months_of_year_{{month.value}}">
+                <input  (change)="changeMonthOfYear($event)" [checked]="getCheckMonth(month.value)" type="checkbox" [value]="month.value" name="loader[months_of_year][]" id="loader_months_of_year_{{month.value}}">
+                {{month.key}}
+              </label>
+            </ng-container>
+
+          </div>
+
+        </div>
+
+        <!--<div *ngIf="schedule_frequency==''"-->
+             <!--class="form-group m-t" id="week-of-month-option" style="display: block;">-->
+          <!--<hr>-->
+          <!--<div class="col-sm-11 ">-->
+            <!--<label class="control-label" for="loader_weeks_of_month">Weeks of Month</label> <br>-->
+            <!--<input type="hidden" name="loader[weeks_of_month][]" id="loader_weeks_of_month" value="">-->
+            <!--<label data-value="first" class="checkbox-inline" style="margin-left: 10px;width:100px" for="loader_weeks_of_month_first">-->
+              <!--<input (change)="changeWeekOfMonth($event)" type="checkbox" value="first" name="loader[weeks_of_month][]" id="loader_weeks_of_month_first">First</label>-->
+            <!--<label data-value="second" class="checkbox-inline" style="margin-left: 10px;width:100px" for="loader_weeks_of_month_second">-->
+              <!--<input (change)="changeWeekOfMonth($event)" type="checkbox" value="second" name="loader[weeks_of_month][]" id="loader_weeks_of_month_second">Second</label>-->
+            <!--<label data-value="third" class="checkbox-inline" style="margin-left: 10px;width:100px" for="loader_weeks_of_month_third">-->
+              <!--<input (change)="changeWeekOfMonth($event)" type="checkbox" value="third" name="loader[weeks_of_month][]" id="loader_weeks_of_month_third">Third</label>-->
+            <!--<label data-value="fourth" class="checkbox-inline" style="margin-left: 10px;width:100px" for="loader_weeks_of_month_fourth">-->
+              <!--<input (change)="changeWeekOfMonth($event)" type="checkbox" value="fourth" name="loader[weeks_of_month][]" id="loader_weeks_of_month_fourth">Fourth</label>-->
+            <!--<label data-value="last" class="checkbox-inline" style="margin-left: 10px;width:100px" for="loader_weeks_of_month_last">-->
+              <!--<input (change)="changeWeekOfMonth($event)" type="checkbox" value="last" name="loader[weeks_of_month][]" id="loader_weeks_of_month_last">Last</label>-->
+          <!--</div>-->
+        <!--</div>-->
+
+        <div *ngIf="schedule_frequency=='Monthly'||schedule_frequency=='Hourly'||schedule_frequency=='Weekly'||schedule_frequency=='Yearly'" class="form-group m-t" id="day-of-week-option" style="display: block;">
+          <hr>
+          <div class="col-sm-11 ">
+            <label class="control-label" >On Days of Week</label> <br>
+            <ng-container *ngFor="let day of dayData">
+              <label data-value="sunday" class="checkbox-inline" style="margin-left: 10px;width:100px" for="loader_days_of_week_{{day}}">
+                <input (change)="changeDayOfWeek($event)" type="checkbox" [checked]="getCheckDaysOfWeek(day)" [value]="day" name="loader[days_of_week]" id="loader_days_of_week_{{day}}">
+                {{day}}
+              </label>
+
+            </ng-container>
+
+
+          </div>
+        </div>
+
+        <div *ngIf="schedule_frequency=='Monthly'||schedule_frequency=='Yearly'"
+             class="form-group m-t-md" id="day-of-month-option" style="display: block;">
+          <hr>
+          <label class="col-sm-4" for="loader_day_of_month">On Day of Month</label>
+          <div class="col-sm-4">
+            <select class="form-control col-sm-9" name="loader_day_of_month" id="loader_day_of_month" (change)="changeDayOfMonth()" [(ngModel)]="days_of_month">
+              <option *ngFor="let item of optionsDayData" [ngValue]="item" >{{item}}</option>
+              </select>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="modal-footer">
+        <div class="text-right">
+
+          <button type="button" class="btn btn-default" (click)="hideModal()" >
+            Close</button>
+
+          <button type="submit"  class="btn btn-success"><span [ngClass]="isSavingSchedule ? 'loading-button':''" >
+            <i [ngClass]="isSavingSchedule ? 'fa fa-gear fa-spin':'fa '"></i>Apply Schedule</span></button>
+        </div>
+      </div>
+
+    </form>
+
+
+</ng-template>
+
+  </section>
+</article>

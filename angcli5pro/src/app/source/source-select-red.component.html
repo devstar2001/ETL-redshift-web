@@ -1,0 +1,87 @@
+<div class="row">
+	<nav class="navbar navbar-default navbar-inverse"
+		style="margin-bottom: 0px;">
+		<div class="container-fluid">
+			<div class="wizard-links text-center"
+				id="bs-example-navbar-collapse-1">
+				<a id="wizard-previous-btn"
+					class="btn navbar-btn btn-sm btn-primary navbar-left"
+					[routerLink]="['/loader/transforms']">BACK</a> <a
+					class="wizard-link" [routerLink]="['/loader/settings']"><i
+					class="fa fa-caret-right " aria-hidden="true"></i> Settings</a> / <a
+					class="wizard-link" [routerLink]="['/loader/transforms']"><i
+					class="fa fa-caret-right " aria-hidden="true"></i> Transform</a> / <a
+					class="wizard-link active"><i class="fa fa-caret-right "
+					aria-hidden="true"></i> Target Table</a> / <a class="wizard-link"
+					[routerLink]="['/loader/summary']"><i
+					class="fa fa-caret-right " aria-hidden="true"></i> Summary</a> <a
+					id="wizard-next-btn" href="#"
+					class="navbar-right btn navbar-btn btn-sm btn-primary">NEXT</a>
+			</div>
+		</div>
+	</nav>
+</div>
+<hr>
+<div class="row">
+	<div class="col-md-12">
+		<!-- Logo -->
+		<div class="logo text-center"></div>
+		<div class="text-center forms">
+			<form class="form form-horizontal" #targetForm="ngForm"
+				(ngSubmit)="saveLoaderSettings()" style="width: 70%">
+				<div class="">
+					<div [class.has-error]="redshift.invalid && redshift.touched">
+						<label>Target Name</label> <select required
+							style="margin-left: 32px; width: 60%; float: left;"
+							name="redshift" class="form-control"
+							[(ngModel)]="loader_sett_form.redshift_id" #redshift="ngModel">
+							<option value="" selected>Select the Database</option>
+							<option *ngFor="let c of targetList" [ngValue]="c.id">{{c.target_name}}</option>
+						</select> <a [routerLink]="['/targets/add']" class="btn btn-primary">Add
+							Target</a> <label  class="control-label"
+							*ngIf="redshift.errors && redshift?.errors.required && redshift.touched">
+							<i class="fa fa-times-circle-o"></i> Target Name is required
+						</label>
+					</div>
+					<hr>
+					<div class="password"
+						[class.has-error]="table_name.invalid && table_name.touched">
+						<label>Table Name</label> <input class="form-control"
+							name="table_name" required
+							[(ngModel)]="loader_sett_form.table_name" #table_name="ngModel">
+						<label  class="control-label"
+							*ngIf="table_name.errors && table_name?.errors.required && table_name.touched">
+							<i class="fa fa-times-circle-o"></i> Table Name is required
+						</label>
+					</div>
+					<hr>
+					<div class="password col-md-12"
+						[class.has-error]="table_name.invalid && table_name.touched">
+						<div class="col-md-3">
+							<label style="margin-left: 0px">Table Update Mode</label>
+						</div>
+						<div class="col-md-4">
+							<label class="radio-inline"
+								style="display: inline-block; padding-top: 0px;"> <input
+								type="radio" value="Replace" name="radiobtn"
+								[(ngModel)]="loader_sett_form.strategy">Replace
+							</label> <label class="radio-inline"
+								style="display: inline-block; padding-top: 0px;"> <input
+								type="radio" value="Append" name="radiobtn"
+								[(ngModel)]="loader_sett_form.strategy">Append
+							</label>
+						</div>
+						<div class="col-md-5"></div>
+						<p style="font-size: 11px;" class=" col-md-12 help-block">When
+							the target table already exists, the above method will be used to
+							load new data. If the target table and the incoming data are
+							structurally different, an error message will be sent.</p>
+					</div>
+				</div>
+
+				<button [disabled]="targetForm.invalid"
+					class="btn btn-primary btn-submit" type="submit">Submit</button>
+			</form>
+		</div>
+	</div>
+</div>

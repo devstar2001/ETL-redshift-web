@@ -1,0 +1,220 @@
+<article id="main">
+
+  <section class="wrapper style4 container">
+    <div class="row" >
+      <div class="col-xs-8">
+        <h2 class="page-title">
+          <i class="fa fa-object-ungroup" aria-hidden="true"></i> Redshift Management
+        </h2>
+      </div>
+    </div>
+    <div class="row">
+      <div class="lodr-pretty-table">
+        <div class="row" align="center" >
+          <table class="table table-bordered " style="width: 80%; margin-bottom: 2px;height: 420px">
+            <tr>
+              <td >
+                <div *ngIf="tableList"  class="table-responsive" style="min-height: 400px">
+                  <table  class="table table-bordered" >
+                    <tr >
+                      <th ></th>
+                      <th >No</th>
+                      <th >Schema</th>
+                      <th >TableName</th>
+                      <th >Bundle ID</th>
+                      <!--<th mat-sort-header="created">LastModified</th>-->
+                    </tr>
+
+                    <tr *ngFor="let file of tableList; let counter = index"
+                        (click)="setClickedRow(counter)" [class.active]="counter == selectedRowIndex">
+                      <td>
+                        <input type="radio" id="radiobutton_{{counter}}">
+                      </td>
+                      <td>
+                        {{counter+1 }}
+                      </td>
+                      <td><label style="cursor: pointer;white-space: nowrap;">{{file.schema}}</label></td>
+                      <td><label style="cursor: pointer;white-space: nowrap;">{{file.table_name}}</label></td>
+                      <td><label style="cursor: pointer;white-space: nowrap;">{{file.bundle_id}}</label></td>
+
+                    </tr>
+                  </table>
+                </div>
+              </td>
+            </tr>
+          </table>
+          <table  border="0" style="width: 80%; margin-bottom: 2px;">
+            <tbody>
+            <tr>
+              <td align="center">
+              <br>
+
+                <div style="display: flex; flex-direction: column" >
+                  <label>(SQL Query)</label>
+                  <mat-form-field>
+                    <textarea matInput placeholder="SELECT * FROM schema.table LIMIT 100" [(ngModel)]="query" ></textarea>
+                  </mat-form-field>
+                </div>
+
+              </td>
+            </tr>
+            <tr>
+              <td align="center">
+                <br>
+                <label>S3 &nbsp;&nbsp;Folder : </label>
+                <input name="input2" #input2="ngModel" (dblclick)="openSelectFileModal(selectS3FileTemplate)" [(ngModel)]="s3_folder" placeholder="folder1/folder2" maxlength="350" size="50"/>
+              <td>
+            </tr>
+            <tr>
+              <td align="center">
+                <br>
+                <label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;S3 &nbsp;File : </label>
+                <input name="input3" #input3="ngModel" [(ngModel)]="s3_file" placeholder="table.csv" maxlength="350" size="50"/>
+              <td>
+            </tr>
+            <tr>
+              <td align="center" width="100%">
+                <br>
+                <button [disabled]="bundle_id == undefined || getting" (click)="DownloadTable()"
+                  class="source-button btn btn-default" >
+                  <i *ngIf="getting" class="fa fa-refresh fa-spin"></i>
+                  <i *ngIf="!getting" class="fa fa-edit"></i><span>&nbsp;&nbsp;</span>
+                  <span *ngIf="loading">Loading</span>
+                  <span *ngIf="!loading">Extract Table Data</span>
+                </button>
+
+                <button [disabled]="bundle_id == undefined || running" (click)="PreviewSqlResult()"
+                        class="source-button btn btn-default" >
+                  <i *ngIf="running" class="fa fa-refresh fa-spin"></i>
+                  <i *ngIf="!running" class="fa fa-edit"></i><span>&nbsp;&nbsp;</span>
+                  <span >RUN</span>
+
+                </button>
+
+              </td>
+            </tr>
+            <tr>
+              <td align="center">
+
+                <br>
+                <div *ngIf="downloading !=''" style="width: 30%; border-style: inset">
+                    <label >
+                      Extract status : {{downloading}}
+                    </label>
+                    <br>
+                </div>
+                <label *ngIf="downloading == 'done'">
+                  Bucket name: {{bucket}} , File path: {{down_file_path}}</label>
+
+              </td>
+
+            </tr>
+
+            </tbody>
+          </table>
+          <table class="table table-bordered">
+            <tbody>
+              <tr>{{sample_sql}}</tr>
+            </tbody>
+          </table>
+
+          <div class="col-md-12" align="center">
+
+            <div class="row table-responsive" *ngIf="raw_data">
+              <table class="table table-bordered table-fixed">
+                <thead>
+                  <tr>
+                    <ng-container *ngFor="let header of table_headers">
+                      <th>
+                        {{header}}
+                      </th>
+                    </ng-container>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let line of raw_data; let counter = index">
+                    <ng-container *ngFor="let col of line;">
+                    <td >
+                      {{col}}
+
+                    </td>
+                    </ng-container>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+    <ng-template #selectS3FileTemplate >
+      <form (ngSubmit)="selectedOneFileMethod()">
+        <div class="modal-header">
+          <h4 class="modal-title pull-left">Please select a folder from s3 storage </h4>
+          <button type="button" class="close pull-right" (click)="hideModal()"
+                  aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body" >
+          <div class="form-group">
+            <label class="control-label">Current folder : {{modal_folder_name}}</label>
+          </div>
+          <div class="preview">
+            <h5>Folder List</h5>
+            <div class="preview-content"
+                 style="height: 50%; overflow: scroll; font-size: 11px;">
+              <table class="table table-bordered table-fixed" >
+                <thead>
+                <tr>
+
+                  <th>Folder</th>
+
+                </tr>
+                </thead>
+                <tbody *ngIf="folderlist" style="cursor: pointer" >
+                <tr *ngFor="let folder of folderlist; let counter = index" (click)="SelectedFolder(folder.filename)">
+                  <ng-container  *ngIf="folder.filename.substr(folder.filename.length-1, folder.filename.length) =='/'">
+
+                    <td >{{folder.filename}}</td>
+                  </ng-container>
+
+                </tr>
+                </tbody>
+                <tbody *ngIf="!folderlist && !gettingFiles">
+                <tr>
+                  <th colspan="2">No Data</th>
+                </tr>
+                </tbody>
+                <tbody *ngIf="!folderlist && !gettingFiles">
+                <tr>
+                  <th colspan="4">
+                    <h3 style="text-align: center;">Getting FolderList...</h3>
+                    <div class="spinner">
+                      <div class="bounce1"></div>
+                      <div class="bounce2"></div>
+                      <div class="bounce3"></div>
+                    </div>
+                  </th>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <div class="text-right">
+            <button type="submit" style="padding: 5px 10px; font-size: 12px; line-height: 1.5; border-radius: 3px; background: #d95daf;" class="btn btn-success">
+              <i [ngClass]="gettingFiles  ? 'fa fa-gear fa-spin':'fa '"></i>
+              &nbsp;OK</button>
+            <button type="button" class="btn btn-default" (click)="hideModal()" style="padding: 5px 50px; margin: 20px; font-size: 12px; line-height: 1.5; border-radius: 3px; background: #337ab7;">
+              Cancel</button>
+          </div>
+        </div>
+      </form>
+    </ng-template>
+  </section>
+</article>
